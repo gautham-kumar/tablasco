@@ -16,9 +16,8 @@
 
 package com.gs.tablasco.rebase;
 
-import com.gs.tablasco.VerifiableTable;
-import com.gs.tablasco.verify.ColumnComparators;
-import com.gs.tablasco.verify.Metadata;
+import com.gs.tablasco.compare.ColumnComparators;
+import com.gs.tablasco.compare.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +27,7 @@ import java.util.Map;
 public class Rebaser
 {
     private static final Logger LOGGER = LoggerFactory.getLogger("Rebaser");
+
     private static Boolean rebaseMode;
     private final ColumnComparators columnComparators;
     private final Metadata metadata;
