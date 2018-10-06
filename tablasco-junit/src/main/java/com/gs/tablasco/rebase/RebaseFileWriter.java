@@ -21,6 +21,7 @@ import com.gs.tablasco.compare.CellComparator;
 import com.gs.tablasco.compare.ColumnComparators;
 import com.gs.tablasco.compare.Metadata;
 import org.eclipse.collections.impl.block.factory.Functions;
+import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.eclipse.collections.impl.utility.ArrayIterate;
@@ -62,7 +63,7 @@ public final class RebaseFileWriter
 
     public void writeRebasedResults(String methodName, List<VerifiableTable> actualResults)
     {
-        this.writeRebasedResults(methodName, Iterate.toMap(actualResults, VerifiableTable::getTableName, Functions.getPassThru()));
+        this.writeRebasedResults(methodName, Iterate.toMap(Iterate.reject(actualResults, Predicates.isNull()), VerifiableTable::getTableName, Functions.getPassThru()));
     }
 
     public void writeRebasedResults(String methodName, Map<String, VerifiableTable> actualResults)

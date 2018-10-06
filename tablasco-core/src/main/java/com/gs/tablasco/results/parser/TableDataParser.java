@@ -19,13 +19,7 @@ package com.gs.tablasco.results.parser;
 import com.gs.tablasco.results.ParsedResults;
 import com.gs.tablasco.results.TableDataLoader;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StreamTokenizer;
+import java.io.*;
 import java.text.ParseException;
 
 public class TableDataParser
@@ -52,7 +46,7 @@ public class TableDataParser
 
     void startNewSection(String testName, String tableName)
     {
-        this.parsedTable = new ParsedTable();
+        this.parsedTable = new ParsedTable(tableName);
         this.results.addTable(testName, tableName, this.parsedTable);
         this.dataReaderState.setSectionName(testName);
     }

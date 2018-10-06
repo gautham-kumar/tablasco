@@ -358,8 +358,13 @@ public class TableComparator<T extends TableComparator<T>>
      */
     public final ComparisonResult compare(ComparableTable lhsTable, ComparableTable rhsTable)
     {
-        ComparableTable adaptedLhsTable = this.lhsAdapter.valueOf(lhsTable);
-        ComparableTable adaptedRhsTable = this.rhsAdapter.valueOf(rhsTable);
+        return this.compare(lhsTable, rhsTable, true, true);
+    }
+
+    protected final ComparisonResult compare(ComparableTable lhsTable, ComparableTable rhsTable, boolean skipLhsAdaptation, boolean skipRhsAdaptation)
+    {
+        ComparableTable adaptedLhsTable = skipLhsAdaptation ? lhsTable : this.lhsAdapter.valueOf(lhsTable);
+        ComparableTable adaptedRhsTable = skipRhsAdaptation ? rhsTable : this.rhsAdapter.valueOf(rhsTable);
         FormattableTable resultTable = getVerifiedResults(adaptedLhsTable, adaptedRhsTable);
         return new ComparisonResult(getComparisonName(lhsTable, rhsTable), resultTable, ++this.compareCount, newHtmlFormatter());
     }

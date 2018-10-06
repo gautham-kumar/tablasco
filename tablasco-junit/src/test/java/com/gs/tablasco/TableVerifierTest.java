@@ -340,7 +340,7 @@ public class TableVerifierTest
         this.verifier.starting(this.description.get());
         this.verifier.withActualAdapter(actual ->
         {
-            Assert.assertSame(TableTestUtils.ACTUAL_2, actual);
+            assertTablesSame(TableTestUtils.ACTUAL_2, actual);
             return TableTestUtils.ACTUAL;
         }).verify(Maps.fixedSize.of(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL), Maps.fixedSize.of(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL_2));
         this.verifier.succeeded(this.description.get());
@@ -349,9 +349,9 @@ public class TableVerifierTest
     private static final Function<VerifiableTable, VerifiableTable> EXPECTED_ADAPTER = new Function<VerifiableTable, VerifiableTable>()
     {
         @Override
-        public VerifiableTable valueOf(VerifiableTable actual)
+        public VerifiableTable valueOf(VerifiableTable expected)
         {
-            return new DefaultVerifiableTableAdapter(actual)
+            return new DefaultVerifiableTableAdapter(expected)
             {
                 @Override
                 public String getColumnName(int columnIndex)
@@ -388,7 +388,7 @@ public class TableVerifierTest
         this.verifier.starting(this.description.get());
         this.verifier.withExpectedAdapter(actual ->
         {
-            Assert.assertSame(TableTestUtils.ACTUAL_2, actual);
+            assertTablesSame(TableTestUtils.ACTUAL_2, actual);
             return TableTestUtils.ACTUAL;
         }).verify(Maps.fixedSize.of(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL_2), Maps.fixedSize.of(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL));
         this.verifier.succeeded(this.description.get());
@@ -415,6 +415,21 @@ public class TableVerifierTest
         TableVerifier tableVerifier = new TableVerifier();
         Assert.assertFalse(tableVerifier.isRebasing());
         Assert.assertTrue(tableVerifier.withRebase().isRebasing());
+    }
+
+    private void assertTablesSame(VerifiableTable left, VerifiableTable right)
+    {
+        Assert.assertEquals(left.getRowCount(), right.getRowCount());
+        Assert.assertEquals(left.getColumnCount(), right.getColumnCount());
+        Assert.assertEquals(left.getTableName(), right.getTableName());
+
+        for (int rowIndex = 0; rowIndex < left.getRowCount(); rowIndex++)
+        {
+            for (int columnIndex = 0; columnIndex < left.getColumnCount(); columnIndex++)
+            {
+                Assert.assertEquals(left.getValueAt(rowIndex, columnIndex), right.getValueAt(rowIndex, columnIndex));
+            }
+        }
     }
 
     private static class TestLifecycleEventHandler implements LifecycleEventHandler

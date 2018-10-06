@@ -556,7 +556,7 @@ public final class TableVerifier extends TableComparator<TableVerifier> implemen
 
         if (this.isRebasing)
         {
-            this.newRebaser().rebase(this.description.getMethodName(), adaptAndFilterTables(actualTables, this.getActualAdapter()), this.getExpectedFile());
+            this.newRebaser().rebase(this.description.getMethodName(), filterTables(actualTables), this.getExpectedFile());
         }
         else
         {
@@ -634,19 +634,15 @@ public final class TableVerifier extends TableComparator<TableVerifier> implemen
     }
 
     // to be called from tests
-    final void verifyTables(List<Pair<VerifiableTable, VerifiableTable>> expectedAndActualTables, Metadata metadata)
+    private void verifyTables(List<Pair<VerifiableTable, VerifiableTable>> expectedAndActualTables, Metadata metadata)
     {
-        Function<VerifiableTable, VerifiableTable> expectedAdapter = this.getExpectedAdapter();
-        Function<VerifiableTable, VerifiableTable> actualAdapter = this.getActualAdapter();
-
-        List<Pair<VerifiableTable, VerifiableTable>> adapted = ListIterate.collect(expectedAndActualTables,
-                pair -> Tuples.pair(getAdaptedTable(expectedAdapter, pair.getOne()), getAdaptedTable(actualAdapter, pair.getTwo())));
-
         ComparisonResult comparisonResult = ComparisonResult.newEmpty(this.newHtmlFormatter());
 
-        for (Pair<VerifiableTable, VerifiableTable> expectedAndActualTable : adapted)
+        for (Pair<VerifiableTable, VerifiableTable> expectedAndActualTable : expectedAndActualTables)
         {
-            comparisonResult.combine(this.compare(expectedAndActualTable.getOne(), expectedAndActualTable.getTwo()));
+            VerifiableTable expected = expectedAndActualTable.getOne();
+            VerifiableTable actual = expectedAndActualTable.getTwo();
+            comparisonResult = comparisonResult.combine(this.compare(expected, actual, skipAdaptation(expected), skipAdaptation(actual)));
         }
 
         boolean verificationSuccess = comparisonResult.isSuccess();
@@ -658,7 +654,8 @@ public final class TableVerifier extends TableComparator<TableVerifier> implemen
         }
         if (createActual)
         {
-            this.newRebaser().rebase(this.description.getMethodName(), ListIterate.collect(adapted, Functions.secondOfPair()), this.getActualFile());
+            List<VerifiableTable> collect = ListIterate.collect(expectedAndActualTables, Functions.secondOfPair()).collect(this.getActualAdapter());
+            this.newRebaser().rebase(this.description.getMethodName(), collect, this.getActualFile());
         }
 
         comparisonResult.generateBreakReport(this.description.getMethodName(), this.getOutputFile().toPath(), metadata);
@@ -666,14 +663,14 @@ public final class TableVerifier extends TableComparator<TableVerifier> implemen
         Assert.assertTrue("Some tests failed. Check test results file " + this.getOutputFile().getAbsolutePath() + " for more details.", verificationSuccess);
     }
 
-    private VerifiableTable getAdaptedTable(Function<VerifiableTable, VerifiableTable> adapter, VerifiableTable table)
+    private boolean skipAdaptation(VerifiableTable table)
     {
-        return table == null ? null : adapter.valueOf(table);
+        return table != null && this.tablesNotToAdapt.contains(table.getTableName());
     }
 
-    private List<VerifiableTable> adaptAndFilterTables(List<VerifiableTable> tables, Function<VerifiableTable, VerifiableTable> adapter)
+    private List<VerifiableTable> filterTables(List<VerifiableTable> tables)
     {
-        return ListIterate.select(tables, table -> this.tableFilter.accept(table.getTableName())).collect(adapter);
+        return ListIterate.select(tables, table -> this.tableFilter.accept(table.getTableName()));
     }
 
     private void runPreVerifyChecks()

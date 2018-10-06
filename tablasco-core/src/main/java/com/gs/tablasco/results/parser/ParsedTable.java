@@ -27,6 +27,12 @@ public class ParsedTable implements ComparableTable
 {
     private final List<String> headers = FastList.newList();
     private final List<List<?>> rowValues = FastList.newList();
+    private final String tableName;
+
+    public ParsedTable(String tableName)
+    {
+        this.tableName = tableName;
+    }
 
     public void addColumnHeader(String header)
     {
@@ -57,7 +63,7 @@ public class ParsedTable implements ComparableTable
     @Override
     public String getTableName()
     {
-        return "Parsed";
+        return this.tableName;
     }
 
     @Override
