@@ -16,13 +16,15 @@
 
 package com.gs.tablasco.investigation;
 
+import com.gs.tablasco.compare.ResultTable;
+import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.impl.utility.Iterate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Compares results from two environments and drills down on breaks in multiple
@@ -32,9 +34,9 @@ public class Sherlock
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(Sherlock.class);
 
-    public void handle(Investigation investigation, Path outputPath)
+    public void handle(Investigation investigation, Path outputPath, Procedure2<String, Map<String, ResultTable>> appendToHtml)
     {
-        Watson watson = new Watson(outputPath);
+        Watson watson = new Watson(appendToHtml);
         InvestigationLevel currentLevel = investigation.getFirstLevel();
         List<Object> drilldownKeys = watson.assist("Initial Results", currentLevel, investigation.getRowKeyLimit());
         if (Iterate.isEmpty(drilldownKeys))

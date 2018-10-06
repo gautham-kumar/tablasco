@@ -119,7 +119,7 @@ public abstract class ResultCell implements Serializable
         return td;
     }
 
-    static String adaptOnCount(int count, String s)
+    public static String adaptOnCount(int count, String s)
     {
         return count > 1 ? s + 's' : s;
     }

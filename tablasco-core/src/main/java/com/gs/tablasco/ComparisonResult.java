@@ -17,29 +17,38 @@
 package com.gs.tablasco;
 
 import com.gs.tablasco.compare.FormattableTable;
-import com.gs.tablasco.compare.HtmlFormatter;
 import com.gs.tablasco.compare.Metadata;
-import org.eclipse.collections.impl.factory.Maps;
+import org.eclipse.collections.api.tuple.Pair;
+import org.eclipse.collections.impl.block.factory.Functions;
+import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
+import org.eclipse.collections.impl.tuple.Tuples;
+import org.eclipse.collections.impl.utility.ListIterate;
 
 import java.nio.file.Path;
-import java.util.Map;
+import java.util.List;
 
 public class ComparisonResult
 {
-    private final FormattableTable formattableTable;
+    private final List<Pair<String, FormattableTable>> formattableTables;
     private final int compareCount;
     private final HtmlFormatter htmlFormatter;
 
-    public ComparisonResult(FormattableTable formattableTable, int compareCount, HtmlFormatter htmlFormatter)
+    public ComparisonResult(String name, FormattableTable formattableTable, int compareCount, HtmlFormatter htmlFormatter)
     {
-        this.formattableTable = formattableTable;
+        this(Lists.fixedSize.of(Tuples.pair(name, formattableTable)), compareCount, htmlFormatter);
+    }
+
+    public ComparisonResult(List<Pair<String, FormattableTable>> formattableTables, int compareCount, HtmlFormatter htmlFormatter)
+    {
+        this.formattableTables = formattableTables;
         this.compareCount = compareCount;
         this.htmlFormatter = htmlFormatter;
     }
 
     public boolean isSuccess()
     {
-        return this.formattableTable.isSuccess();
+        return ListIterate.collect(this.formattableTables, Functions.secondOfPair()).allSatisfy(FormattableTable::isSuccess);
     }
 
     public void generateBreakReport(Path outputPath)
@@ -54,7 +63,17 @@ public class ComparisonResult
 
     public void generateBreakReport(String comparisonName, Path outputPath, Metadata metadata)
     {
-        Map<String, FormattableTable> results = Maps.fixedSize.of(comparisonName, this.formattableTable);
-        this.htmlFormatter.appendResults(outputPath, comparisonName, results, metadata, this.compareCount);
+        this.htmlFormatter.appendResults(outputPath, comparisonName, UnifiedMap.newMapWith(this.formattableTables), metadata, this.compareCount);
+    }
+
+    public static ComparisonResult newEmpty(HtmlFormatter htmlFormatter)
+    {
+        return new ComparisonResult(Lists.fixedSize.of(), 0, htmlFormatter);
+    }
+
+    public ComparisonResult combine(ComparisonResult result)
+    {
+        List<Pair<String, FormattableTable>> allTables = Lists.fixedSize.ofAll(this.formattableTables).withAll(result.formattableTables);
+        return new ComparisonResult(allTables, this.compareCount + result.compareCount, result.htmlFormatter);
     }
 }

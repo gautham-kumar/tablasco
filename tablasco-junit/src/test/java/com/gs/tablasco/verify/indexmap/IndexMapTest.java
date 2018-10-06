@@ -16,6 +16,8 @@
 
 package com.gs.tablasco.verify.indexmap;
 
+import com.gs.tablasco.compare.indexmap.IndexMap;
+import com.gs.tablasco.compare.indexmap.IndexMapGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 

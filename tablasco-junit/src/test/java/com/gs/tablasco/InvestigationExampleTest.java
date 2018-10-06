@@ -20,7 +20,9 @@ import com.gs.tablasco.investigation.Investigation;
 import com.gs.tablasco.investigation.InvestigationLevel;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import java.io.IOException;
 import java.util.List;
 
 public class InvestigationExampleTest
@@ -30,8 +32,11 @@ public class InvestigationExampleTest
             .withFilePerMethod()
             .withMavenDirectoryStrategy();
 
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Test(expected = AssertionError.class)
-    public void example()
+    public void example() throws IOException
     {
         Investigation investigation = new Investigation()
         {
@@ -42,19 +47,19 @@ public class InvestigationExampleTest
                         "Group By Entity",
                         TableTestUtils.createTable(3,
                                 "Entity", "Value", "Key",
-                                "GSIB", 5,"GSIB",
-                                "GSJC", 4,"GSJC",
-                                "GSCO", 20,"GSCO",
-                                "GSIL", 15,"GSIL",
-                                "JANY", 12,"JANY"
+                                "GSIB", 5, "GSIB",
+                                "GSJC", 4, "GSJC",
+                                "GSCO", 20, "GSCO",
+                                "GSIL", 15, "GSIL",
+                                "JANY", 12, "JANY"
                         ),
                         TableTestUtils.createTable(3,
                                 "Entity", "Value", "Key",
-                                "GSIB", 5,"GSIB",
-                                "GSJC", 4,"GSJC",
-                                "GSCO", 22,"GSCO",
-                                "GSIL", 15,"GSIL",
-                                "JANY", 10,"JANY"
+                                "GSIB", 5, "GSIB",
+                                "GSJC", 4, "GSJC",
+                                "GSCO", 22, "GSCO",
+                                "GSIL", 15, "GSIL",
+                                "JANY", 10, "JANY"
                         ));
             }
 
@@ -102,6 +107,6 @@ public class InvestigationExampleTest
                 return 100;
             }
         };
-        this.tableVerifier.investigate(investigation);
+        this.tableVerifier.investigate(investigation, this.temporaryFolder.newFile().toPath());
     }
 }

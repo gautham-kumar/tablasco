@@ -26,15 +26,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
+import java.io.*;
 
 public class ExceptionHtml
 {
@@ -98,7 +90,7 @@ public class ExceptionHtml
         return element;
     }
 
-    static String stackTraceToString(Throwable e) throws UnsupportedEncodingException
+    public static String stackTraceToString(Throwable e) throws UnsupportedEncodingException
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         PrintStream out = new PrintStream(bytes, false, "UTF-8");

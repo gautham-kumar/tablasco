@@ -24,12 +24,12 @@ import com.gs.tablasco.investigation.Investigation;
 import com.gs.tablasco.investigation.Sherlock;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
+import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.factory.Sets;
-import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
-import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -40,7 +40,7 @@ import java.util.Set;
  * interface allows configuration options to be combined in a flexible manner.
  * <p>
  */
-public class TableComparator
+public class TableComparator<T extends TableComparator<T>>
 {
     private boolean compareRowOrder = true;
     private boolean hideMatchedRows = false;
@@ -68,10 +68,10 @@ public class TableComparator
      * @param compareRowOrder whether to compare row order or not
      * @return this
      */
-    public final TableComparator withCompareRowOrder(boolean compareRowOrder)
+    public final T withCompareRowOrder(boolean compareRowOrder)
     {
         this.compareRowOrder = compareRowOrder;
-        return this;
+        return self();
     }
 
     /**
@@ -84,10 +84,10 @@ public class TableComparator
      * @param tolerance the tolerance to apply
      * @return this
      */
-    public final TableComparator withTolerance(double tolerance)
+    public final T withTolerance(double tolerance)
     {
         this.columnComparatorsBuilder.withTolerance(tolerance);
-        return this;
+        return self();
     }
 
     /**
@@ -98,10 +98,10 @@ public class TableComparator
      * @param tolerance  the tolerance to apply
      * @return this
      */
-    public final TableComparator withTolerance(String columnName, double tolerance)
+    public final T withTolerance(String columnName, double tolerance)
     {
         this.columnComparatorsBuilder.withTolerance(columnName, tolerance);
-        return this;
+        return self();
     }
 
     /**
@@ -115,10 +115,10 @@ public class TableComparator
      * @param varianceThreshold the variance threshold to apply
      * @return this
      */
-    public final TableComparator withVarianceThreshold(double varianceThreshold)
+    public final T withVarianceThreshold(double varianceThreshold)
     {
         this.columnComparatorsBuilder.withVarianceThreshold(varianceThreshold);
-        return this;
+        return self();
     }
 
     /**
@@ -129,10 +129,10 @@ public class TableComparator
      * @param varianceThreshold the variance threshold to apply
      * @return this
      */
-    public final TableComparator withVarianceThreshold(String columnName, double varianceThreshold)
+    public final T withVarianceThreshold(String columnName, double varianceThreshold)
     {
         this.columnComparatorsBuilder.withVarianceThreshold(columnName, varianceThreshold);
-        return this;
+        return self();
     }
 
     /**
@@ -142,10 +142,10 @@ public class TableComparator
      * @param hideMatchedRows whether to hide matched rows or not
      * @return this
      */
-    public final TableComparator withHideMatchedRows(boolean hideMatchedRows)
+    public final T withHideMatchedRows(boolean hideMatchedRows)
     {
         this.hideMatchedRows = hideMatchedRows;
-        return this;
+        return self();
     }
 
     /**
@@ -155,10 +155,10 @@ public class TableComparator
      * @param hideMatchedColumns whether to hide matched columns or not
      * @return this
      */
-    public TableComparator withHideMatchedColumns(boolean hideMatchedColumns)
+    public final T withHideMatchedColumns(boolean hideMatchedColumns)
     {
         this.hideMatchedColumns = hideMatchedColumns;
-        return this;
+        return self();
     }
 
     /**
@@ -168,10 +168,10 @@ public class TableComparator
      * @param hideMatchedTables whether to hide matched tables or not
      * @return this
      */
-    public final TableComparator withHideMatchedTables(boolean hideMatchedTables)
+    public final T withHideMatchedTables(boolean hideMatchedTables)
     {
         this.hideMatchedTables = hideMatchedTables;
-        return this;
+        return self();
     }
 
     /**
@@ -181,10 +181,10 @@ public class TableComparator
      * @param htmlRowLimit the number of rows to limit output to
      * @return this
      */
-    public final TableComparator withHtmlRowLimit(int htmlRowLimit)
+    public final T withHtmlRowLimit(int htmlRowLimit)
     {
         this.htmlRowLimit = htmlRowLimit;
-        return this;
+        return self();
     }
 
     /**
@@ -192,10 +192,10 @@ public class TableComparator
      *
      * @return this
      */
-    public final TableComparator withAssertionSummary(boolean assertionSummary)
+    public final T withAssertionSummary(boolean assertionSummary)
     {
         this.assertionSummary = assertionSummary;
-        return this;
+        return self();
     }
 
     /**
@@ -205,10 +205,10 @@ public class TableComparator
      * @param rhsAdapter function for adapting tables
      * @return this
      */
-    public final TableComparator withRhsAdapter(Function<ComparableTable, ComparableTable> rhsAdapter)
+    public final T withRhsAdapter(Function<ComparableTable, ComparableTable> rhsAdapter)
     {
         this.rhsAdapter = rhsAdapter;
-        return this;
+        return self();
     }
 
     /**
@@ -218,7 +218,7 @@ public class TableComparator
      */
     public Function<ComparableTable, ComparableTable> getRhsAdapter()
     {
-        return rhsAdapter;
+        return this.rhsAdapter;
     }
 
     /**
@@ -228,10 +228,10 @@ public class TableComparator
      * @param lhsAdapter function for adapting tables
      * @return this
      */
-    public final TableComparator withLhsAdapter(Function<ComparableTable, ComparableTable> lhsAdapter)
+    public final T withLhsAdapter(Function<ComparableTable, ComparableTable> lhsAdapter)
     {
         this.lhsAdapter = lhsAdapter;
-        return this;
+        return self();
     }
 
     /**
@@ -241,7 +241,7 @@ public class TableComparator
      */
     public Function<ComparableTable, ComparableTable> getLhsAdapter()
     {
-        return lhsAdapter;
+        return this.lhsAdapter;
     }
 
     /**
@@ -249,10 +249,10 @@ public class TableComparator
      *
      * @return this
      */
-    public final TableComparator withIgnoreSurplusRows()
+    public final T withIgnoreSurplusRows()
     {
         this.ignoreSurplusRows = true;
-        return this;
+        return self();
     }
 
     /**
@@ -260,10 +260,10 @@ public class TableComparator
      *
      * @return this
      */
-    public final TableComparator withIgnoreMissingRows()
+    public final T withIgnoreMissingRows()
     {
         this.ignoreMissingRows = true;
-        return this;
+        return self();
     }
 
     /**
@@ -271,10 +271,10 @@ public class TableComparator
      *
      * @return this
      */
-    public TableComparator withIgnoreSurplusColumns()
+    public final T withIgnoreSurplusColumns()
     {
         this.ignoreSurplusColumns = true;
-        return this;
+        return self();
     }
 
     /**
@@ -282,10 +282,10 @@ public class TableComparator
      *
      * @return this
      */
-    public TableComparator withIgnoreMissingColumns()
+    public final T withIgnoreMissingColumns()
     {
         this.ignoreMissingColumns = true;
-        return this;
+        return self();
     }
 
     /**
@@ -295,7 +295,7 @@ public class TableComparator
      * @param columnsToIgnore the columns to ignore
      * @return this
      */
-    public TableComparator withIgnoreColumns(String... columnsToIgnore)
+    public final T withIgnoreColumns(String... columnsToIgnore)
     {
         Set<String> columnSet = Sets.immutable.of(columnsToIgnore).castToSet();
         return this.withColumnFilter(s -> !columnSet.contains(s));
@@ -308,7 +308,7 @@ public class TableComparator
      * @param columnFilter the column filter to apply
      * @return this
      */
-    public TableComparator withColumnFilter(final Predicate<String> columnFilter)
+    public final T withColumnFilter(final Predicate<String> columnFilter)
     {
         Function<ComparableTable, ComparableTable> adapter = table -> TableAdapters.withColumns(table, columnFilter);
         return this.withRhsAdapter(adapter).withLhsAdapter(adapter);
@@ -321,10 +321,10 @@ public class TableComparator
      * @param summarisedResults whether to summarise results or not
      * @return this
      */
-    public final TableComparator withSummarisedResults(boolean summarisedResults)
+    public final T withSummarisedResults(boolean summarisedResults)
     {
         this.summarisedResults = summarisedResults;
-        return this;
+        return self();
     }
 
     /**
@@ -334,10 +334,10 @@ public class TableComparator
      * @param partialMatchTimeoutMillis comparison timeout in milliseconds
      * @return this
      */
-    public final TableComparator withPartialMatchTimeoutMillis(long partialMatchTimeoutMillis)
+    public final T withPartialMatchTimeoutMillis(long partialMatchTimeoutMillis)
     {
         this.partialMatchTimeoutMillis = partialMatchTimeoutMillis;
-        return this;
+        return self();
     }
 
     /**
@@ -345,7 +345,7 @@ public class TableComparator
      *
      * @return this
      */
-    public final TableComparator withoutPartialMatchTimeout()
+    public final T withoutPartialMatchTimeout()
     {
         return this.withPartialMatchTimeoutMillis(0);
     }
@@ -361,7 +361,7 @@ public class TableComparator
         ComparableTable adaptedLhsTable = this.lhsAdapter.valueOf(lhsTable);
         ComparableTable adaptedRhsTable = this.rhsAdapter.valueOf(rhsTable);
         FormattableTable resultTable = getVerifiedResults(adaptedLhsTable, adaptedRhsTable);
-        return new ComparisonResult(resultTable, ++this.compareCount, newHtmlFormatter());
+        return new ComparisonResult(getComparisonName(lhsTable, rhsTable), resultTable, ++this.compareCount, newHtmlFormatter());
     }
 
     /**
@@ -370,7 +370,13 @@ public class TableComparator
      */
     public void investigate(Investigation investigation, Path outputPath)
     {
-        new Sherlock().handle(investigation, outputPath);
+        Procedure2<String, Map<String, ResultTable>> appendToHtml = (levelName, map) ->
+        {
+            HtmlFormatter formatter = new HtmlFormatter(new HtmlOptions(false, HtmlFormatter.DEFAULT_ROW_LIMIT, false, true, false));
+            formatter.appendResults(outputPath, levelName, map, Metadata.newEmpty());
+        };
+
+        new Sherlock().handle(investigation, outputPath, appendToHtml);
     }
 
     private FormattableTable getVerifiedResults(ComparableTable adaptedLhsTable, ComparableTable adaptedRhsTable)
@@ -389,13 +395,37 @@ public class TableComparator
         return this.summarisedResults ? new SummaryResultTable(resultTable) : resultTable;
     }
 
-    private HtmlFormatter newHtmlFormatter()
+    final HtmlFormatter newHtmlFormatter()
     {
         return new HtmlFormatter(new HtmlOptions(this.assertionSummary, this.htmlRowLimit, this.hideMatchedTables, this.hideMatchedRows, this.hideMatchedColumns));
     }
 
     private SingleTableComparator newSingleTableComparator()
     {
-        return new IndexMapTableComparator(this.columnComparatorsBuilder.build(), this.compareRowOrder, IndexMapTableComparator.DEFAULT_BEST_MATCH_THRESHOLD, this.ignoreSurplusRows, this.ignoreMissingRows, this.ignoreSurplusColumns, this.ignoreMissingColumns, this.partialMatchTimeoutMillis);
+        return new IndexMapTableComparator(this.getColumnComparators(), this.compareRowOrder, IndexMapTableComparator.DEFAULT_BEST_MATCH_THRESHOLD, this.ignoreSurplusRows, this.ignoreMissingRows, this.ignoreSurplusColumns, this.ignoreMissingColumns, this.partialMatchTimeoutMillis);
+    }
+
+    private String getComparisonName(ComparableTable lhsTable, ComparableTable rhsTable)
+    {
+        if (lhsTable == null)
+        {
+            return rhsTable.getTableName();
+        }
+        if (rhsTable == null)
+        {
+            return lhsTable.getTableName();
+        }
+        return Sets.fixedSize.of(lhsTable.getTableName(), rhsTable.getTableName()).makeString();
+    }
+
+    protected ColumnComparators getColumnComparators()
+    {
+        return this.columnComparatorsBuilder.build();
+    }
+
+    T self()
+    {
+        //noinspection unchecked
+        return (T) this;
     }
 }

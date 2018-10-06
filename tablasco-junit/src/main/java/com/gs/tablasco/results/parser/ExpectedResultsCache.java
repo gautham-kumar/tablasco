@@ -16,8 +16,8 @@
 
 package com.gs.tablasco.results.parser;
 
-import com.gs.tablasco.results.ExpectedResults;
-import com.gs.tablasco.results.ExpectedResultsLoader;
+import com.gs.tablasco.results.ParsedResults;
+import com.gs.tablasco.results.TableDataLoader;
 
 import java.io.File;
 import java.util.Map;
@@ -25,16 +25,16 @@ import java.util.WeakHashMap;
 
 public class ExpectedResultsCache
 {
-    private static final Map<File, ExpectedResults> RESULT_CACHES = new WeakHashMap<>();
+    private static final Map<File, ParsedResults> RESULT_CACHES = new WeakHashMap<>();
 
-    public static ExpectedResults getExpectedResults(ExpectedResultsLoader expectedResultsLoader, File expectedResultsFile)
+    public static ParsedResults getExpectedResults(TableDataLoader expectedResultsLoader, File expectedResultsFile)
     {
-        ExpectedResults cached = RESULT_CACHES.get(expectedResultsFile);
+        ParsedResults cached = RESULT_CACHES.get(expectedResultsFile);
         if (cached != null)
         {
             return cached;
         }
-        ExpectedResults expectedResults = new ExpectedResultsParser(expectedResultsLoader, expectedResultsFile).parse();
+        ParsedResults expectedResults = new TableDataParser(expectedResultsLoader, expectedResultsFile).parse();
         RESULT_CACHES.put(expectedResultsFile, expectedResults);
         return expectedResults;
     }

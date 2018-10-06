@@ -16,6 +16,7 @@
 
 package com.gs.tablasco.verify;
 
+import com.gs.tablasco.compare.Metadata;
 import org.junit.Assert;
 import org.junit.Test;
 

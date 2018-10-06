@@ -14,10 +14,10 @@
  * under the License.
  */
 
-package com.gs.tablasco.compare;
+package com.gs.tablasco;
 
+import com.gs.tablasco.compare.*;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
-import org.eclipse.collections.impl.utility.StringIterate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -31,9 +31,12 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
-public class HtmlFormatter
+class HtmlFormatter
 {
     public static final int DEFAULT_ROW_LIMIT = 10000;
 
@@ -246,7 +249,7 @@ public class HtmlFormatter
         Element div = document.createElement("div");
         if (withDivId)
         {
-            div.setAttribute("id", toHtmlId(testName, tableName));
+            div.setAttribute("id", HtmlFormatterUtils.toHtmlId(testName, tableName));
         }
         htmlBody.appendChild(div);
 
@@ -257,98 +260,6 @@ public class HtmlFormatter
         table.setAttribute("cellspacing", "0");
         div.appendChild(table);
         return table;
-    }
-
-    static void appendMultiMatchedRow(Element table, int colspan, int matchedRows)
-    {
-        Document document = table.getOwnerDocument();
-        Element tr = document.createElement("tr");
-        table.appendChild(tr);
-        Element td = document.createElement("td");
-        td.setAttribute("class", "pass multi");
-        td.setAttribute("colspan", String.valueOf(colspan));
-        td.appendChild(document.createTextNode(matchedRows + ResultCell.adaptOnCount(matchedRows, " matched row") + "..."));
-        tr.appendChild(td);
-    }
-
-    static void appendDataRow(Element table, FormattableTable resultTable, String rowId, String rowStyle, List<ResultCell> resultCells, HtmlOptions htmlOptions)
-    {
-        Element tr = table.getOwnerDocument().createElement("tr");
-        if (rowId != null)
-        {
-            tr.setAttribute("id", rowId);
-        }
-        if (rowStyle != null)
-        {
-            tr.setAttribute("style", rowStyle);
-        }
-        table.appendChild(tr);
-        for (int col = 0; col < resultCells.size(); col++)
-        {
-            int matchedAhead = resultTable.getMatchedColumnsAhead(col);
-            ResultCell resultCell = resultCells.get(col);
-            if (htmlOptions.isHideMatchedColumns() && matchedAhead > 0)
-            {
-                resultCell = ResultCell.createCustomCell("\u00A0", resultCell.getCssClass());
-                col += matchedAhead;
-            }
-            Node cell = resultCell.createCell(tr.getOwnerDocument(), false);
-            tr.appendChild(cell);
-        }
-    }
-
-    static void appendHeaderRow(Node table, FormattableTable resultTable, HtmlOptions htmlOptions)
-    {
-        final Element tr = table.getOwnerDocument().createElement("tr");
-        table.appendChild(tr);
-        List<ResultCell> headers = resultTable.getHeaders();
-        for (int col = 0; col < headers.size(); col++)
-        {
-            int matchedAhead = resultTable.getMatchedColumnsAhead(col);
-            ResultCell resultCell;
-            if (htmlOptions.isHideMatchedColumns() && matchedAhead > 0)
-            {
-                resultCell = ResultCell.createCustomCell(String.format("%d matched columns", matchedAhead + 1), "...", "pass multi");
-                col += matchedAhead;
-            }
-            else
-            {
-                resultCell = headers.get(col);
-            }
-            Node cell = resultCell.createCell(tr.getOwnerDocument(), true);
-            tr.appendChild(cell);
-        }
-    }
-
-    static void appendSpanningRow(Node table, FormattableTable resultTable, String cssClass, String data, String onDataClick)
-    {
-        Document document = table.getOwnerDocument();
-
-        Element tr = document.createElement("tr");
-        if (onDataClick != null)
-        {
-            tr.setAttribute("onclick", onDataClick);
-        }
-        table.appendChild(tr);
-
-        Element td = document.createElement("td");
-        td.setAttribute("class", cssClass);
-        td.setAttribute("colspan", String.valueOf(resultTable.getHeaders().size()));
-        if (data != null)
-        {
-            Element nodeWithText = ResultCell.createNodeWithText(document, "a", data, "link");
-            td.appendChild(nodeWithText);
-        }
-        tr.appendChild(td);
-    }
-
-    static String toHtmlId(String testName, String tableName)
-    {
-        if (StringIterate.isEmpty(tableName))
-        {
-            return testName;
-        }
-        return testName.replaceAll("\\W+", "_") + '.' + tableName.replaceAll("\\W+", "_");
     }
 
     private static String getVisibilityFunction()

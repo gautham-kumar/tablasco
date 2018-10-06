@@ -21,7 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-public class FileSystemExpectedResultsLoader implements ExpectedResultsLoader
+public class FileSystemExpectedResultsLoader implements TableDataLoader
 {
     @Override
     public InputStream load(final File expectedFile) throws FileNotFoundException

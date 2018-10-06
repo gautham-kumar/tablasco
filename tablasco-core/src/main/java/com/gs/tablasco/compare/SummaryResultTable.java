@@ -16,9 +16,7 @@
 
 package com.gs.tablasco.compare;
 
-import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.block.function.Function0;
-import org.eclipse.collections.api.block.procedure.Procedure;
+import com.gs.tablasco.HtmlOptions;
 import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
@@ -53,12 +51,7 @@ public class SummaryResultTable implements FormattableTable, Serializable
         {
             List<ResultCell> comparedRow = comparedRows.get(i);
             String key = getKey(comparedRow);
-            SummaryResult summaryResult = this.resultsByKey.get(key);
-            if (summaryResult == null)
-            {
-                summaryResult = new SummaryResult(key, this.headers.size());
-                this.resultsByKey.put(key, summaryResult);
-            }
+            SummaryResult summaryResult = this.resultsByKey.computeIfAbsent(key, k -> new SummaryResult(k, this.headers.size()));
             summaryResult.addRow(comparedRow);
             summaryResult.addCardinality(comparedRow);
             summaryResult.totalRows++;
@@ -115,7 +108,7 @@ public class SummaryResultTable implements FormattableTable, Serializable
         return this.totalCellCount;
     }
 
-    Map<String, SummaryResult> getResultsByKey()
+    public Map<String, SummaryResult> getResultsByKey()
     {
         return this.resultsByKey;
     }
@@ -176,20 +169,20 @@ public class SummaryResultTable implements FormattableTable, Serializable
     @Override
     public void appendTo(final String testName, final String tableName, final Element table, final HtmlOptions htmlOptions)
     {
-        HtmlFormatter.appendHeaderRow(table, this, htmlOptions);
+        HtmlFormatterUtils.appendHeaderRow(table, this, htmlOptions);
         Iterate.forEachWithIndex(this.getResultsByKey().keySet(), (ObjectIntProcedure<String>) (key, index) ->
         {
             SummaryResult summaryResult = getResultsByKey().get(key);
-            HtmlFormatter.appendSpanningRow(table, SummaryResultTable.this, "blank_row", null, null);
+            HtmlFormatterUtils.appendSpanningRow(table, SummaryResultTable.this, "blank_row", null, null);
 
             for (List<ResultCell> resultCells : summaryResult.getFirstFewRows())
             {
-                HtmlFormatter.appendDataRow(table, SummaryResultTable.this, null, null, resultCells, htmlOptions);
+                HtmlFormatterUtils.appendDataRow(table, SummaryResultTable.this, null, null, resultCells, htmlOptions);
             }
             int remainingRows = summaryResult.getRemainingRowCount();
             if (remainingRows > 0)
             {
-                String summaryRowId = HtmlFormatter.toHtmlId(testName, tableName) + ".summaryRow" + index;
+                String summaryRowId = HtmlFormatterUtils.toHtmlId(testName, tableName) + ".summaryRow" + index;
                 String summaryText;
                 if ("0".equals(key))
                 {
@@ -199,8 +192,8 @@ public class SummaryResultTable implements FormattableTable, Serializable
                 {
                     summaryText = ResultCell.adaptOnCount(remainingRows, " more break") + " like this";
                 }
-                HtmlFormatter.appendSpanningRow(table, SummaryResultTable.this, "summary", NumberFormat.getInstance().format(remainingRows) + summaryText + "...", "toggleVisibility('" + summaryRowId + "')");
-                HtmlFormatter.appendDataRow(table, SummaryResultTable.this, summaryRowId, "display:none", summaryResult.getSummaryCardinalityRow(), htmlOptions);
+                HtmlFormatterUtils.appendSpanningRow(table, SummaryResultTable.this, "summary", NumberFormat.getInstance().format(remainingRows) + summaryText + "...", "toggleVisibility('" + summaryRowId + "')");
+                HtmlFormatterUtils.appendDataRow(table, SummaryResultTable.this, summaryRowId, "display:none", summaryResult.getSummaryCardinalityRow(), htmlOptions);
             }
         });
     }

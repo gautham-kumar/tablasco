@@ -20,26 +20,33 @@ import com.gs.tablasco.ComparableTable;
 
 /**
  * A default <tt>ComparableTable</tt> adapter that delegates all calls to an underlying delegate table. Extend this
- * class if you only need to modify behaviour of some methods of the udnerlying table.
+ * class if you only need to modify behaviour of some methods of the underlying table.
  */
 public abstract class DefaultComparableTableAdapter implements ComparableTable
 {
+    private final String tableName;
     private final ComparableTable delegate;
 
     /**
      * Creates a new <tt>DefaultComparableTableAdapter</tt> with an underlying table to which calls should be delegated.
+     *
      * @param delegate underlying table to which calls should be delegated
      */
     protected DefaultComparableTableAdapter(ComparableTable delegate)
     {
-        this.delegate = delegate;
+        this(delegate.getTableName(), delegate);
     }
 
+    public DefaultComparableTableAdapter(String tableName, ComparableTable delegate)
+    {
+        this.tableName = tableName;
+        this.delegate = delegate;
+    }
 
     @Override
     public String getTableName()
     {
-        return this.delegate.getTableName();
+        return this.tableName;
     }
 
     @Override

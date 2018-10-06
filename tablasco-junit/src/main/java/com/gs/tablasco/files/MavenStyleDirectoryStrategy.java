@@ -14,7 +14,7 @@
  * under the License.
  */
 
-package com.gs.tablasco.paths;
+package com.gs.tablasco.files;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,19 +26,19 @@ import java.nio.file.Paths;
 
 public class MavenStyleDirectoryStrategy implements DirectoryStrategy
 {
-    private String lhsSubDir = null;
-    private String rhsSubDir = null;
+    private String expectedSubDir = null;
+    private String outputSubDir = null;
     private String anchorFile = "pom.xml";
 
     /**
-     * Use a sub-folder of src/test/resources for rhs results
+     * Use a sub-folder of src/test/resources for actual results
      *
-     * @param lhsSubDir - the folder in src/test/resources which contains the rhs results
+     * @param expectedSubDir - the folder in src/test/resources which contains the actual results
      * @return the same {@code MavenStyleDirectoryStrategy}
      */
-    public MavenStyleDirectoryStrategy withLhsSubDir(String lhsSubDir)
+    public MavenStyleDirectoryStrategy withExpectedSubDir(String expectedSubDir)
     {
-        this.lhsSubDir = lhsSubDir;
+        this.expectedSubDir = expectedSubDir;
         return this;
     }
 
@@ -50,7 +50,7 @@ public class MavenStyleDirectoryStrategy implements DirectoryStrategy
      */
     public MavenStyleDirectoryStrategy withOutputSubDir(String outputSubDir)
     {
-        this.rhsSubDir = outputSubDir;
+        this.outputSubDir = outputSubDir;
         return this;
     }
 
@@ -68,7 +68,7 @@ public class MavenStyleDirectoryStrategy implements DirectoryStrategy
     }
 
     @Override
-    public Path getLhsDirectory(Class<?> testClass)
+    public File getExpectedDirectory(Class<?> testClass)
     {
         final URL sourceLocation = testClass.getProtectionDomain().getCodeSource().getLocation();
         if (sourceLocation.getProtocol().equalsIgnoreCase("file"))
@@ -77,7 +77,7 @@ public class MavenStyleDirectoryStrategy implements DirectoryStrategy
             {
                 Path moduleDir = findModuleDir(Paths.get(sourceLocation.toURI()));
                 final Path resourcesFolder = moduleDir.resolve("src").resolve("test").resolve("resources");
-                return isEmptyString(this.lhsSubDir) ? resourcesFolder : resourcesFolder.resolve(this.lhsSubDir);
+                return isEmptyString(this.expectedSubDir) ? resourcesFolder.toFile() : resourcesFolder.resolve(this.expectedSubDir).toFile();
             }
             catch (URISyntaxException e)
             {
@@ -92,16 +92,17 @@ public class MavenStyleDirectoryStrategy implements DirectoryStrategy
     }
 
     @Override
-    public Path getOutputDirectory(Class<?> testClass) {
+    public File getOutputDirectory(Class<?> testClass)
+    {
         final URL sourceLocation = testClass.getProtectionDomain().getCodeSource().getLocation();
         if (sourceLocation.getProtocol().equalsIgnoreCase("file"))
         {
             try
             {
                 Path moduleDir = findModuleDir(Paths.get(sourceLocation.toURI()));
-                final Path outputFolder = isEmptyString(this.rhsSubDir) ? moduleDir.resolve("target") : moduleDir.resolve("target").resolve(this.rhsSubDir);
+                final Path outputFolder = isEmptyString(this.outputSubDir) ? moduleDir.resolve("target") : moduleDir.resolve("target").resolve(this.outputSubDir);
                 Files.createDirectories(outputFolder);
-                return outputFolder;
+                return outputFolder.toFile();
             }
             catch (URISyntaxException | IOException e)
             {
@@ -116,7 +117,7 @@ public class MavenStyleDirectoryStrategy implements DirectoryStrategy
     }
 
     @Override
-    public Path getRhsDirectory(Class<?> testClass)
+    public File getActualDirectory(Class<?> testClass)
     {
         return getOutputDirectory(testClass);
     }

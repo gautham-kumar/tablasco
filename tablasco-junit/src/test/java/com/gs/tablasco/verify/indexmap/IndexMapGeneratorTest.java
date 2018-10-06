@@ -16,6 +16,9 @@
 
 package com.gs.tablasco.verify.indexmap;
 
+import com.gs.tablasco.compare.indexmap.IndexMap;
+import com.gs.tablasco.compare.indexmap.IndexMapGenerator;
+import com.gs.tablasco.compare.indexmap.UnmatchedIndexMap;
 import org.eclipse.collections.impl.list.mutable.FastList;
 import org.junit.Assert;
 import org.junit.Test;

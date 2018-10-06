@@ -16,10 +16,11 @@
 
 package com.gs.tablasco;
 
-import com.gs.tablasco.verify.DefaultVerifiableTableAdapter;
 import com.gs.tablasco.verify.ListVerifiableTable;
 import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
 import org.eclipse.collections.impl.list.mutable.FastList;
+import org.eclipse.collections.impl.tuple.Tuples;
+import org.eclipse.collections.impl.utility.MapIterate;
 import org.junit.Assert;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -29,31 +30,36 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class TableTestUtils
 {
+    static final String TABLE_NAME = "peopleTable";
+
     static final VerifiableTable ACTUAL = new ListVerifiableTable(
+            TABLE_NAME,
             Arrays.<Object>asList("First", "Last", "Age"),
             Arrays.asList(
-                    Arrays.<Object>asList("Barry", "White", 21.3),
-                    Arrays.<Object>asList("Oscar", "White", 7.6)));
+                    Arrays.asList("Barry", "White", 21.3),
+                    Arrays.asList("Oscar", "White", 7.6)));
+
     static final VerifiableTable ACTUAL_2 = new ListVerifiableTable(
+            TABLE_NAME,
             Arrays.<Object>asList("First", "Last", "Age"),
             Arrays.asList(
-                    Arrays.<Object>asList("Elliot", "White", 3.8)));
+                    Arrays.asList("Elliot", "White", 3.8)));
+
     static final VerifiableTable ACTUAL_3 = new ListVerifiableTable(
+            TABLE_NAME,
             Arrays.<Object>asList("Name", "Age", "Weight", "Height"),
             Arrays.asList(
-                    Arrays.<Object>asList("Elliot", 1.1, 1.02, 1.5)));
-    static final String TABLE_NAME = "peopleTable";
+                    Arrays.asList("Elliot", 1.1, 1.02, 1.5)));
+
     private static final DocumentBuilder DOCUMENT_BUILDER;
+
     static
     {
         try
@@ -64,7 +70,7 @@ public class TableTestUtils
         {
             throw new RuntimeException(e);
         }
-    };
+    }
 
     static String getHtml(TableVerifier verifier, String tag) throws IOException
     {
@@ -100,9 +106,9 @@ public class TableTestUtils
         return null;
     }
 
-    public static VerifiableTable createTable(int cols, Object... values)
+    public static ComparableTable createTable(int cols, Object... values)
     {
-        List<List<Object>> headersAndRows = FastList.<List<Object>>newListWith(ArrayAdapter.adapt(values).subList(0, cols));
+        List<List<Object>> headersAndRows = FastList.newListWith(ArrayAdapter.adapt(values).subList(0, cols));
         int start = cols;
         while (start < values.length)
         {
@@ -110,7 +116,7 @@ public class TableTestUtils
             start += cols;
         }
         // wrapping just to get coverage on default table adapter
-        return new DefaultVerifiableTableAdapter(new ListVerifiableTable(headersAndRows))
+        return new DefaultVerifiableTableAdapter(new ListVerifiableTable("Test", headersAndRows))
         {
         };
     }
@@ -153,6 +159,13 @@ public class TableTestUtils
             runnable.run();
             Assert.fail("Expected AssertionError");
         }
-        catch (AssertionError e) {}
+        catch (AssertionError e)
+        {
+        }
+    }
+
+    public static Map<String, VerifiableTable> adapt(Map<String, ComparableTable> expectedTables)
+    {
+        return MapIterate.collect(expectedTables, (name, comparableTable) -> Tuples.pair(name, new DefaultVerifiableTableAdapter(comparableTable)));
     }
 }

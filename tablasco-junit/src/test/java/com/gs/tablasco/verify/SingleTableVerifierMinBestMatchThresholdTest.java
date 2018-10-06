@@ -16,7 +16,9 @@
 
 package com.gs.tablasco.verify;
 
-import com.gs.tablasco.verify.indexmap.IndexMapTableVerifier;
+import com.gs.tablasco.compare.ColumnComparators;
+import com.gs.tablasco.compare.ResultCell;
+import com.gs.tablasco.compare.indexmap.IndexMapTableComparator;
 import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
@@ -29,9 +31,9 @@ import java.util.Map;
 public class SingleTableVerifierMinBestMatchThresholdTest extends AbstractSingleTableVerifierTest
 {
     @Override
-    protected IndexMapTableVerifier createSingleTableVerifier(ColumnComparators columnComparators)
+    protected IndexMapTableComparator createSingleTableVerifier(ColumnComparators columnComparators)
     {
-        return new IndexMapTableVerifier(columnComparators, true, 1, false, false);
+        return new IndexMapTableComparator(columnComparators, true, 1, false, false);
     }
 
     @Override
@@ -39,8 +41,9 @@ public class SingleTableVerifierMinBestMatchThresholdTest extends AbstractSingle
     {
         return ROW_KEY_VERIFICATIONS.get(methodName);
     }
-    
+
     static final Map<String, List<List<ResultCell>>> ROW_KEY_VERIFICATIONS;
+
     static
     {
         ROW_KEY_VERIFICATIONS = UnifiedMap.newMap(SingleTableVerifierMaxBestMatchThresholdTest.MAX_BEST_MATCH_THRESHOLD);

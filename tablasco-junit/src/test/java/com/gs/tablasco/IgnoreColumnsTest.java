@@ -16,7 +16,6 @@
 
 package com.gs.tablasco;
 
-import org.eclipse.collections.impl.factory.Maps;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,20 +32,21 @@ public class IgnoreColumnsTest
     @Test
     public void ignoreColumns() throws IOException
     {
-        VerifiableTable table1 = TableTestUtils.createTable(4, "Col 1", "Col 2", "Col 3", "Col 4", "A1", "A2", "A3", "A4");
-        VerifiableTable table2 = TableTestUtils.createTable(4, "Col 1", "Col 2", "Col 3", "Col 4", "A1", "XX", "A3", "XX");
-        this.tableVerifier.withIgnoreColumns("Col 2", "Col 4").verify(Maps.fixedSize.of("name", table1), Maps.fixedSize.of("name", table2));
+        ComparableTable table1 = TableTestUtils.createTable(4, "Col 1", "Col 2", "Col 3", "Col 4", "A1", "A2", "A3", "A4");
+        ComparableTable table2 = TableTestUtils.createTable(4, "Col 1", "Col 2", "Col 3", "Col 4", "A1", "XX", "A3", "XX");
+
+        this.tableVerifier.withIgnoreColumns("Col 2", "Col 4").compare(table1, table2);
 
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
-                "<tr>\n" +
-                "<th class=\"pass\">Col 1</th>\n" +
-                "<th class=\"pass\">Col 3</th>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"pass\">A1</td>\n" +
-                "<td class=\"pass\">A3</td>\n" +
-                "</tr>\n" +
-                "</table>", TableTestUtils.getHtml(this.tableVerifier, "table"));
+                        "<tr>\n" +
+                        "<th class=\"pass\">Col 1</th>\n" +
+                        "<th class=\"pass\">Col 3</th>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"pass\">A1</td>\n" +
+                        "<td class=\"pass\">A3</td>\n" +
+                        "</tr>\n" +
+                        "</table>", TableTestUtils.getHtml(this.tableVerifier, "table"));
     }
 }

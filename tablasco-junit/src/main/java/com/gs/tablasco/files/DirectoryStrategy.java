@@ -14,31 +14,33 @@
  * under the License.
  */
 
-package com.gs.tablasco.paths;
+package com.gs.tablasco.files;
+
+import java.io.File;
 
 /**
- * A strategy for determining the lhs results and comparison output pathnames
+ * A strategy for determining the expected results and verification output directories for a given test class.
  */
-public interface PathNameStrategy
+public interface DirectoryStrategy
 {
     /**
-     * Returns the lhs results pathname for a given test class.
+     * Returns the expected results directory for a given test class.
      * @param testClass the test class
-     * @return the lhs results pathname
+     * @return the expected results directory
      */
-    String getLhsPathname(Class<?> testClass, String methodName);
+    File getExpectedDirectory(Class<?> testClass);
 
     /**
-     * Returns the comparison output pathname for a given test class.
+     * Returns the verification output directory for a given test class.
      * @param testClass the test class
-     * @return the comparison output pathname
+     * @return the verification output directory
      */
-    String getOutputPathname(Class<?> testClass, String methodName);
+    File getOutputDirectory(Class<?> testClass);
 
     /**
-     * Returns the rhs results pathname for a given test class.
+     * Returns the actual results directory for a given test class.
      * @param testClass the test class
-     * @return the comparison output pathname
+     * @return the verification output directory
      */
-    String getRhsPathname(Class<?> testClass, String methodName);
+    File getActualDirectory(Class<?> testClass);
 }

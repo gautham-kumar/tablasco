@@ -16,13 +16,14 @@
 
 package com.gs.tablasco.rebase;
 
+import com.gs.tablasco.VerifiableTable;
 import com.gs.tablasco.compare.ColumnComparators;
 import com.gs.tablasco.compare.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Map;
+import java.util.List;
 
 public class Rebaser
 {
@@ -49,7 +50,7 @@ public class Rebaser
         this.baselineHeaders = baselineHeaders;
     }
 
-    public void rebase(String methodName, Map<String, VerifiableTable> actualResults, File outputFile)
+    public void rebase(String methodName, List<VerifiableTable> actualResults, File outputFile)
     {
         new RebaseFileWriter(this.metadata, this.baselineHeaders, this.columnComparators, outputFile).writeRebasedResults(methodName, actualResults);
     }
@@ -66,7 +67,7 @@ public class Rebaser
             LOGGER.warn("       |_|_\\  |___|  |___/  |_|_|  |___/  |___| |_|\\_|  \\___|");
             LOGGER.warn("     _|\"\"\"\"\"||\"\"\"\"\"||\"\"\"\"\"||\"\"\"\"\"||\"\"\"\"\"||\"\"\"\"\"||\"\"\"\"\"||\"\"\"\"\"|");
             LOGGER.warn("      `-0-0-'`-0-0-'`-0-0-'`-0-0-'`-0-0-'`-0-0-'`-0-0-'`-0-0-'");
-            LOGGER.warn("train.... ");
+            LOGGER.warn("train.... Choo Choo !!!");
         }
         return rebaseEnabled;
     }

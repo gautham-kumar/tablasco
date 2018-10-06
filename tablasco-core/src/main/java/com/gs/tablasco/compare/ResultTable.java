@@ -16,6 +16,7 @@
 
 package com.gs.tablasco.compare;
 
+import com.gs.tablasco.HtmlOptions;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.utility.Iterate;
@@ -73,7 +74,8 @@ public class ResultTable implements FormattableTable
                 if (matchedColumns[i])
                 {
                     matchedColumnsAhead++;
-                } else
+                }
+                else
                 {
                     return matchedColumnsAhead;
                 }
@@ -120,7 +122,7 @@ public class ResultTable implements FormattableTable
     public void appendTo(String testName, String tableName, Element table, HtmlOptions htmlOptions)
     {
         List<List<ResultCell>> results = this.getComparedRows();
-        HtmlFormatter.appendHeaderRow(table, this, htmlOptions);
+        HtmlFormatterUtils.appendHeaderRow(table, this, htmlOptions);
 
         int matchedRows = 0;
         int dataRowIndex = 1;
@@ -140,7 +142,7 @@ public class ResultTable implements FormattableTable
                 {
                     if (matchedRows > 0)
                     {
-                        HtmlFormatter.appendMultiMatchedRow(table, this.getHeaders().size(), matchedRows);
+                        HtmlFormatterUtils.appendMultiMatchedRow(table, this.getHeaders().size(), matchedRows);
                         rowsAppended++;
                     }
                     matchedRows = 0;
@@ -148,20 +150,20 @@ public class ResultTable implements FormattableTable
                     {
                         break;
                     }
-                    HtmlFormatter.appendDataRow(table, this, null, null, row, htmlOptions);
+                    HtmlFormatterUtils.appendDataRow(table, this, null, null, row, htmlOptions);
                     rowsAppended++;
                 }
             }
             else
             {
-                HtmlFormatter.appendDataRow(table, this, null, null, row, htmlOptions);
+                HtmlFormatterUtils.appendDataRow(table, this, null, null, row, htmlOptions);
                 rowsAppended++;
             }
             dataRowIndex++;
         }
         if (htmlOptions.isHideMatchedRows() && matchedRows > 0)
         {
-            HtmlFormatter.appendMultiMatchedRow(table, this.getHeaders().size(), matchedRows);
+            HtmlFormatterUtils.appendMultiMatchedRow(table, this.getHeaders().size(), matchedRows);
         }
         int remainingRows = results.size() - dataRowIndex;
         if (remainingRows > 0)

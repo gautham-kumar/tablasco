@@ -22,8 +22,6 @@ import org.eclipse.collections.impl.factory.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.List;
-
 public class MavenStyleDirectoryStrategyTest
 {
     @Rule
@@ -40,10 +38,10 @@ public class MavenStyleDirectoryStrategyTest
     @Test
     public void testMavenStyleDirectoryStrategy()
     {
-        this.tableVerifier.verify("maven", new ListVerifiableTable(Lists.fixedSize.<List<Object>>of(
-                Lists.fixedSize.<Object>of("h1", "h2"),
-                Lists.fixedSize.<Object>of("r11", "r12"),
-                Lists.fixedSize.<Object>of("r21", "r22")
+        this.tableVerifier.verify("maven", new ListVerifiableTable("test", Lists.fixedSize.of(
+                Lists.fixedSize.of("h1", "h2"),
+                Lists.fixedSize.of("r11", "r12"),
+                Lists.fixedSize.of("r21", "r22")
         )));
     }
 }

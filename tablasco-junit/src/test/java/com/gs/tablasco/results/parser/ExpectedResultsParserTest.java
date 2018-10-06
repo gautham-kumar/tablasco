@@ -16,10 +16,10 @@
 
 package com.gs.tablasco.results.parser;
 
+import com.gs.tablasco.ComparableTable;
 import com.gs.tablasco.TableTestUtils;
-import com.gs.tablasco.VerifiableTable;
-import com.gs.tablasco.results.ExpectedResults;
 import com.gs.tablasco.results.FileSystemExpectedResultsLoader;
+import com.gs.tablasco.results.ParsedResults;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,13 +35,13 @@ public class ExpectedResultsParserTest
     {
         File expected = new File(TableTestUtils.getExpectedDirectory(), ExpectedResultsParserTest.class.getSimpleName() + ".txt");
 
-        ExpectedResults results = new ExpectedResultsParser(new FileSystemExpectedResultsLoader(), expected).parse();
+        ParsedResults results = new TableDataParser(new FileSystemExpectedResultsLoader(), expected).parse();
 
-        VerifiableTable summary = results.getTable("Summary");
+        ComparableTable summary = results.getTable("Summary");
         Assert.assertEquals(6, summary.getColumnCount());
         Assert.assertEquals(5, summary.getRowCount());
 
-        VerifiableTable drillDown = results.getTable("DrillDown");
+        ComparableTable drillDown = results.getTable("DrillDown");
         Assert.assertEquals(6, drillDown.getColumnCount());
         Assert.assertEquals(1, drillDown.getRowCount());
 
@@ -54,7 +54,7 @@ public class ExpectedResultsParserTest
     public void testCache()
     {
         File expected = new File(TableTestUtils.getExpectedDirectory(), ExpectedResultsParserTest.class.getSimpleName() + ".txt");
-        Map<ExpectedResults, String> results = new IdentityHashMap<>();
+        Map<ParsedResults, String> results = new IdentityHashMap<>();
         for (int i = 0; i < 10; i++)
         {
             results.put(ExpectedResultsCache.getExpectedResults(new FileSystemExpectedResultsLoader(), expected), "");
@@ -68,7 +68,7 @@ public class ExpectedResultsParserTest
         String missingFileName = "missing-expected-results.txt";
         try
         {
-            new ExpectedResultsParser(new FileSystemExpectedResultsLoader(), new File(missingFileName)).parse();
+            new TableDataParser(new FileSystemExpectedResultsLoader(), new File(missingFileName)).parse();
             Assert.fail("Should have failed looking for non-existent file");
         }
         catch (IllegalStateException expected)

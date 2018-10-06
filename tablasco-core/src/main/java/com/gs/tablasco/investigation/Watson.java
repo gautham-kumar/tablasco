@@ -19,6 +19,7 @@ package com.gs.tablasco.investigation;
 import com.gs.tablasco.ComparableTable;
 import com.gs.tablasco.compare.*;
 import com.gs.tablasco.compare.indexmap.IndexMapTableComparator;
+import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.api.tuple.Twin;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.list.mutable.FastList;
@@ -26,8 +27,8 @@ import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.eclipse.collections.impl.utility.Iterate;
 
-import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,11 +41,11 @@ import java.util.concurrent.Future;
 class Watson
 {
     private final SingleTableComparator tableComparator;
-    private final Path outputPath;
+    private final Procedure2<String, Map<String, ResultTable>> appendToHtml;
 
-    public Watson(Path outputPath)
+    public Watson(Procedure2<String, Map<String, ResultTable>> appendToHtml)
     {
-        this.outputPath = outputPath;
+        this.appendToHtml = appendToHtml;
         ColumnComparators columnComparators = new ColumnComparators.Builder().withTolerance(1.0).build();
         this.tableComparator = new IndexMapTableComparator(columnComparators, false, IndexMapTableComparator.DEFAULT_BEST_MATCH_THRESHOLD);
     }
@@ -70,8 +71,7 @@ class Watson
 
         String levelDescription = nextLevel.getLevelDescription();
         ResultTable results = this.tableComparator.compare(lhsResults, rhsResults);
-        HtmlFormatter htmlFormatter = new HtmlFormatter(new HtmlOptions(false, HtmlFormatter.DEFAULT_ROW_LIMIT, false, true, false));
-        htmlFormatter.appendResults(this.outputPath, levelName, Maps.fixedSize.of(levelDescription, results), Metadata.newEmpty());
+        this.appendToHtml.value(levelName, Maps.fixedSize.of(levelDescription, results));
         return getRowKeys(results, drilldownLimit);
     }
 

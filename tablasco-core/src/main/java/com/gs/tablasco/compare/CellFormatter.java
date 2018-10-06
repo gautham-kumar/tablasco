@@ -108,7 +108,7 @@ public class CellFormatter implements Function<Object, String>
         return changed ? this.builder.toString() : value;
     }
 
-    static boolean isNegativeZero(String formatted)
+    public static boolean isNegativeZero(String formatted)
     {
         if (!isCharAt(formatted, 0, '-'))
         {

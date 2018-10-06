@@ -16,7 +16,6 @@
 
 package com.gs.tablasco.compare;
 
-import org.eclipse.collections.api.block.function.Function2;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.MapIterable;
 import org.eclipse.collections.api.map.MutableMap;
@@ -112,7 +111,8 @@ public class ColumnComparators implements Serializable
             return new ColumnComparators(this.defaultTolerance, this.defaultVarianceThreshold, this.toleranceVarianceValues.toImmutable());
         }
 
-        private ToleranceVarianceValues toleranceVarianceValue(String columnName) {
+        private ToleranceVarianceValues toleranceVarianceValue(String columnName)
+        {
             return this.toleranceVarianceValues.get(columnName) == null
                     ? new ToleranceVarianceValues() : this.toleranceVarianceValues.get(columnName);
         }
@@ -122,12 +122,14 @@ public class ColumnComparators implements Serializable
             private Double tolerance;
             private Double varianceThreshold;
 
-            public ToleranceVarianceValues withTolerance(Double tolerance) {
+            public ToleranceVarianceValues withTolerance(Double tolerance)
+            {
                 this.tolerance = tolerance;
                 return this;
             }
 
-            public ToleranceVarianceValues withVarianceThreshold(Double varianceThreshold) {
+            public ToleranceVarianceValues withVarianceThreshold(Double varianceThreshold)
+            {
                 this.varianceThreshold = varianceThreshold;
                 return this;
             }

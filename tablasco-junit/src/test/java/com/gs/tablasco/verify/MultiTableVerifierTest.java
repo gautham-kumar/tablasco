@@ -16,10 +16,11 @@
 
 package com.gs.tablasco.verify;
 
+import com.gs.tablasco.ComparableTable;
+import com.gs.tablasco.HtmlTestUtil;
 import com.gs.tablasco.TableTestUtils;
-import com.gs.tablasco.VerifiableTable;
-import com.gs.tablasco.verify.indexmap.IndexMapTableVerifier;
-import org.eclipse.collections.api.list.MutableList;
+import com.gs.tablasco.compare.*;
+import com.gs.tablasco.compare.indexmap.IndexMapTableComparator;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.list.mutable.FastList;
 import org.eclipse.collections.impl.map.mutable.UnifiedMap;
@@ -30,7 +31,7 @@ import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class MultiTableVerifierTest
@@ -50,7 +51,7 @@ public class MultiTableVerifierTest
         this.resultsFile = new File(TableTestUtils.getOutputDirectory(), MultiTableVerifierTest.class.getSimpleName() + '_' + this.testName.getMethodName() + ".html");
         this.resultsFile.delete();
         ColumnComparators columnComparators = new ColumnComparators.Builder().build();
-        this.verifier = new MultiTableVerifier(new IndexMapTableVerifier(columnComparators, true, IndexMapTableVerifier.DEFAULT_BEST_MATCH_THRESHOLD, false, false));
+        this.verifier = new MultiTableVerifier(new IndexMapTableComparator(columnComparators, true, IndexMapTableComparator.DEFAULT_BEST_MATCH_THRESHOLD, false, false));
     }
 
     @After
@@ -69,8 +70,8 @@ public class MultiTableVerifierTest
     public void missingTable()
     {
         Map<String, ResultTable> results = verifyTables(createTables("assets"), createTables("assets", "liabs"));
-        Assert.assertEquals(newPassTable(), results.get("assets").getVerifiedRows());
-        Assert.assertEquals(newMissingTable(), results.get("liabs").getVerifiedRows());
+        Assert.assertEquals(newPassTable(), results.get("assets").getComparedRows());
+        Assert.assertEquals(newMissingTable(), results.get("liabs").getComparedRows());
         this.expectedTables = 2;
     }
 
@@ -78,8 +79,8 @@ public class MultiTableVerifierTest
     public void surplusTable()
     {
         Map<String, ResultTable> results = this.verifyTables(createTables("assets", "liabs"), createTables("liabs"));
-        Assert.assertEquals(newSurplusTable(), results.get("assets").getVerifiedRows());
-        Assert.assertEquals(newPassTable(), results.get("liabs").getVerifiedRows());
+        Assert.assertEquals(newSurplusTable(), results.get("assets").getComparedRows());
+        Assert.assertEquals(newPassTable(), results.get("liabs").getComparedRows());
         this.expectedTables = 2;
     }
 
@@ -87,9 +88,9 @@ public class MultiTableVerifierTest
     public void misnamedTable()
     {
         Map<String, ResultTable> results = this.verifyTables(createTables("assets", "liabs"), createTables("assets", "liabz"));
-        Assert.assertEquals(newPassTable(), results.get("assets").getVerifiedRows());
-        Assert.assertEquals(newSurplusTable(), results.get("liabs").getVerifiedRows());
-        Assert.assertEquals(newMissingTable(), results.get("liabz").getVerifiedRows());
+        Assert.assertEquals(newPassTable(), results.get("assets").getComparedRows());
+        Assert.assertEquals(newSurplusTable(), results.get("liabs").getComparedRows());
+        Assert.assertEquals(newMissingTable(), results.get("liabz").getComparedRows());
         this.expectedTables = 3;
     }
 
@@ -109,42 +110,47 @@ public class MultiTableVerifierTest
                 Maps.fixedSize.of("table", TableTestUtils.createTable(1, "Col")));
     }
 
-    private Map<String, ResultTable> verifyTables(Map<String, VerifiableTable> actualResults, Map<String, VerifiableTable> expectedResults)
+    private Map<String, ResultTable> verifyTables(Map<String, ComparableTable> actualResults, Map<String, ComparableTable> expectedResults)
     {
-        Map<String, ResultTable> results = this.verifier.verifyTables(expectedResults, actualResults);
-        HtmlFormatter htmlFormatter = new HtmlFormatter(this.resultsFile, new HtmlOptions(false, HtmlFormatter.DEFAULT_ROW_LIMIT, false, false, false, Collections.<String>emptySet()));
-        htmlFormatter.appendResults(this.testName.getMethodName(), results, null);
+        Map<String, ResultTable> results = this.verifier.verifyTables(TableTestUtils.adapt(expectedResults), TableTestUtils.adapt(actualResults));
+        HtmlTestUtil.append(this.resultsFile.toPath(), this.testName.getMethodName(), results);
         return results;
     }
 
-    private MutableList<MutableList<ResultCell>> newMissingTable()
+    private List<List<ResultCell>> newMissingTable()
     {
-        return FastList.<MutableList<ResultCell>>newListWith(
+        return FastList.newListWith(
                 FastList.newListWith(ResultCell.createMissingCell(CELL_COMPARATOR.getFormatter(), "Heading")),
                 FastList.newListWith(ResultCell.createMissingCell(CELL_COMPARATOR.getFormatter(), "Value")));
     }
 
-    private MutableList<MutableList<ResultCell>> newSurplusTable()
+    private List<List<ResultCell>> newSurplusTable()
     {
-        return FastList.<MutableList<ResultCell>>newListWith(
+        return FastList.newListWith(
                 FastList.newListWith(ResultCell.createSurplusCell(CELL_COMPARATOR.getFormatter(), "Heading")),
                 FastList.newListWith(ResultCell.createSurplusCell(CELL_COMPARATOR.getFormatter(), "Value")));
     }
 
-    private static FastList<MutableList<ResultCell>> newPassTable()
+    private static List<List<ResultCell>> newPassTable()
     {
-        return FastList.<MutableList<ResultCell>>newListWith(
+        return FastList.newListWith(
                 FastList.newListWith(ResultCell.createMatchedCell(CELL_COMPARATOR, "Heading", "Heading")),
                 FastList.newListWith(ResultCell.createMatchedCell(CELL_COMPARATOR, "Value", "Value")));
     }
 
-    private static Map<String, VerifiableTable> createTables(String... names)
+    private static Map<String, ComparableTable> createTables(String... names)
     {
-        Map<String, VerifiableTable> tables = UnifiedMap.newMap();
+        Map<String, ComparableTable> tables = UnifiedMap.newMap();
         for (String name : names)
         {
-            tables.put(name, new VerifiableTable()
+            tables.put(name, new ComparableTable()
             {
+                @Override
+                public String getTableName()
+                {
+                    return name;
+                }
+
                 @Override
                 public int getRowCount()
                 {

@@ -14,41 +14,40 @@
  * under the License.
  */
 
-package com.gs.tablasco.paths;
+package com.gs.tablasco.files;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
 
 public class FixedDirectoryStrategy implements DirectoryStrategy
 {
-    private final Path lhsDir;
-    private final Path outputDir;
+    private final File expectedDir;
+    private final File outputDir;
 
     public FixedDirectoryStrategy()
     {
-        this(Paths.get(System.getProperty("user.dir")), Paths.get(System.getProperty("java.io.tmpdir")));
+        this(new File(System.getProperty("user.dir")), new File(System.getProperty("java.io.tmpdir")));
     }
 
-    public FixedDirectoryStrategy(Path lhsDir, Path outputDir)
+    public FixedDirectoryStrategy(File expectedDir, File outputDir)
     {
-        this.lhsDir = lhsDir;
+        this.expectedDir = expectedDir;
         this.outputDir = outputDir;
     }
 
     @Override
-    public Path getLhsDirectory(Class<?> testClass)
+    public File getExpectedDirectory(Class<?> testClass)
     {
-        return this.lhsDir;
+        return this.expectedDir;
     }
 
     @Override
-    public Path getOutputDirectory(Class<?> testClass)
+    public File getOutputDirectory(Class<?> testClass)
     {
         return this.outputDir;
     }
 
     @Override
-    public Path getRhsDirectory(Class<?> testClass)
+    public File getActualDirectory(Class<?> testClass)
     {
         return this.outputDir;
     }

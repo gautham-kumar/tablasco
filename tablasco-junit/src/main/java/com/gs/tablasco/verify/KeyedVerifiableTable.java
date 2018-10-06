@@ -14,24 +14,11 @@
  * under the License.
  */
 
-package com.gs.tablasco.compare;
+package com.gs.tablasco.verify;
 
-import com.gs.tablasco.HtmlOptions;
-import org.w3c.dom.Element;
+import com.gs.tablasco.VerifiableTable;
+import com.gs.tablasco.compare.KeyedComparableTable;
 
-import java.util.List;
-
-public interface FormattableTable
+public interface KeyedVerifiableTable extends KeyedComparableTable, VerifiableTable
 {
-    int getPassedCellCount();
-
-    int getTotalCellCount();
-
-    List<ResultCell> getHeaders();
-
-    int getMatchedColumnsAhead(int col);
-
-    void appendTo(String testName, String tableName, Element table, HtmlOptions htmlOptions);
-
-    boolean isSuccess();
 }

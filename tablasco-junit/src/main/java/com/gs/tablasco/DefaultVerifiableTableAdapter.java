@@ -16,11 +16,21 @@
 
 package com.gs.tablasco;
 
-/**
- * The table model that <tt>TableVerifier</tt> is able to verify. Data structures must be adapted to instances of
- * <tt>VerifiableTable</tt> in order to be verified.
- */
-public interface VerifiableTable extends ComparableTable
-{
+import com.gs.tablasco.compare.DefaultComparableTableAdapter;
 
+/**
+ * A default <tt>VerifiableTable</tt> adapter that delegates all calls to an underlying delegate table. Extend this
+ * class if you only need to modify behaviour of some methods of the underlying table.
+ */
+public class DefaultVerifiableTableAdapter extends DefaultComparableTableAdapter implements VerifiableTable
+{
+    public DefaultVerifiableTableAdapter(ComparableTable delegate)
+    {
+        super(delegate);
+    }
+
+    public DefaultVerifiableTableAdapter(String name, ComparableTable delegate)
+    {
+        super(name, delegate);
+    }
 }

@@ -14,9 +14,7 @@
  * under the License.
  */
 
-package com.gs.tablasco.compare;
-
-import java.util.Set;
+package com.gs.tablasco;
 
 public class HtmlOptions
 {
@@ -35,7 +33,7 @@ public class HtmlOptions
         this.hideMatchedRows = hideMatchedRows;
     }
 
-    boolean isHideMatchedColumns()
+    public boolean isHideMatchedColumns()
     {
         return this.hideMatchedColumns;
     }
@@ -45,12 +43,12 @@ public class HtmlOptions
         return this.displayAssertionSummary;
     }
 
-    int getHtmlRowLimit()
+    public int getHtmlRowLimit()
     {
         return this.htmlRowLimit;
     }
 
-    boolean isHideMatchedRows()
+    public boolean isHideMatchedRows()
     {
         return this.hideMatchedRows;
     }

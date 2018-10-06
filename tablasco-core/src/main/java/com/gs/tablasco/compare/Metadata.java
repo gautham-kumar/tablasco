@@ -20,11 +20,8 @@ import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.list.mutable.FastList;
 import org.eclipse.collections.impl.tuple.Tuples;
 
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -47,7 +44,7 @@ public class Metadata
     public static Metadata newWithRecordedAt()
     {
         Metadata metadata = new Metadata();
-        metadata.addDate(RECORDED_AT, LocalDate.now());
+        metadata.addDate(RECORDED_AT, LocalDateTime.now());
         return metadata;
     }
 
@@ -56,7 +53,7 @@ public class Metadata
         this.data.add(Tuples.pair(key, value));
     }
 
-    public void addDate(String key, LocalDate date)
+    public void addDate(String key, LocalDateTime date)
     {
         this.add(key, DATE_TIME_FORMATTER.format(date));
     }

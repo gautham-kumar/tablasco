@@ -18,15 +18,14 @@ package com.gs.tablasco;
 
 import com.gs.tablasco.lifecycle.ExceptionHandler;
 import com.gs.tablasco.lifecycle.LifecycleEventHandler;
-import com.gs.tablasco.verify.DefaultVerifiableTableAdapter;
 import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.Description;
 
-import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -44,7 +43,7 @@ public class TableVerifierTest
     public void validationSuccess()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL);
+        this.verifier.verify(TableTestUtils.ACTUAL);
         this.verifier.succeeded(this.description.get());
     }
 
@@ -52,14 +51,14 @@ public class TableVerifierTest
     public void validationFailure()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL);
+        this.verifier.verify(TableTestUtils.ACTUAL);
     }
 
     @Test
     public void toleranceSuccess()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.withTolerance(0.2d).withVerifyRowOrder(true).verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL);
+        this.verifier.withTolerance(0.2d).withVerifyRowOrder(true).verify(TableTestUtils.ACTUAL);
         this.verifier.succeeded(this.description.get());
     }
 
@@ -67,7 +66,7 @@ public class TableVerifierTest
     public void toleranceSuccessForFirstColumn()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.withTolerance("Age", 0.2d).verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL_3);
+        this.verifier.withTolerance("Age", 0.2d).verify(TableTestUtils.ACTUAL_3);
         this.verifier.succeeded(this.description.get());
     }
 
@@ -75,7 +74,7 @@ public class TableVerifierTest
     public void toleranceSuccessForSecondColumn()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.withTolerance("Weight", 0.06d).verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL_3);
+        this.verifier.withTolerance("Weight", 0.06d).verify(TableTestUtils.ACTUAL_3);
         this.verifier.succeeded(this.description.get());
     }
 
@@ -83,7 +82,7 @@ public class TableVerifierTest
     public void toleranceSuccessForTwoColumns()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.withTolerance("Weight", 0.06d).withTolerance("Age", 0.2d).verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL_3);
+        this.verifier.withTolerance("Weight", 0.06d).withTolerance("Age", 0.2d).verify(TableTestUtils.ACTUAL_3);
         this.verifier.succeeded(this.description.get());
     }
 
@@ -91,7 +90,7 @@ public class TableVerifierTest
     public void toleranceSuccessWithGeneralCase()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.withTolerance("Weight", 0.06d).withTolerance(1.0d).verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL_3);
+        this.verifier.withTolerance("Weight", 0.06d).withTolerance(1.0d).verify(TableTestUtils.ACTUAL_3);
         this.verifier.succeeded(this.description.get());
     }
 
@@ -99,28 +98,28 @@ public class TableVerifierTest
     public void toleranceFailure()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.withTolerance(0.1d).withVerifyRowOrder(true).verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL);
+        this.verifier.withTolerance(0.1d).withVerifyRowOrder(true).verify(TableTestUtils.ACTUAL);
     }
 
     @Test(expected = AssertionError.class)
     public void toleranceFailureForTwoColumns()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.withTolerance("Age", 0.2d).withTolerance("Weight", 0.06d).withVerifyRowOrder(true).verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL_3);
+        this.verifier.withTolerance("Age", 0.2d).withTolerance("Weight", 0.06d).withVerifyRowOrder(true).verify(TableTestUtils.ACTUAL_3);
     }
 
     @Test(expected = AssertionError.class)
     public void toleranceFailureWithGeneralCase()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.withTolerance("Weight", 0.06d).withTolerance(1.0d).verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL_3);
+        this.verifier.withTolerance("Weight", 0.06d).withTolerance(1.0d).verify(TableTestUtils.ACTUAL_3);
     }
 
     @Test
     public void varianceSuccess()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.withVarianceThreshold(5.0d).withVerifyRowOrder(true).verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL);
+        this.verifier.withVarianceThreshold(5.0d).withVerifyRowOrder(true).verify(TableTestUtils.ACTUAL);
         this.verifier.succeeded(this.description.get());
     }
 
@@ -128,7 +127,7 @@ public class TableVerifierTest
     public void varianceSuccessForTwoColumns()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.withVarianceThreshold("Weight", 1.0d).withVarianceThreshold("Age", 5.0d).withVerifyRowOrder(true).verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL_3);
+        this.verifier.withVarianceThreshold("Weight", 1.0d).withVarianceThreshold("Age", 5.0d).withVerifyRowOrder(true).verify(TableTestUtils.ACTUAL_3);
         this.verifier.succeeded(this.description.get());
     }
 
@@ -137,7 +136,7 @@ public class TableVerifierTest
     {
         this.verifier.starting(this.description.get());
         this.verifier.withVarianceThreshold("Weight", 1.0d).withVarianceThreshold("Age", 5.0d)
-                .withTolerance("Age", 0.2d).withTolerance("Weight", 0.06d).withVerifyRowOrder(true).verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL_3);
+                .withTolerance("Age", 0.2d).withTolerance("Weight", 0.06d).withVerifyRowOrder(true).verify(TableTestUtils.ACTUAL_3);
         this.verifier.succeeded(this.description.get());
     }
 
@@ -145,28 +144,28 @@ public class TableVerifierTest
     public void varianceFailure()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.withVarianceThreshold(5.0d).withVerifyRowOrder(true).verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL);
+        this.verifier.withVarianceThreshold(5.0d).withVerifyRowOrder(true).verify(TableTestUtils.ACTUAL);
     }
 
     @Test(expected = AssertionError.class)
     public void varianceFailureForTwoColumns()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.withVarianceThreshold("Age", 5.0d).withVarianceThreshold("Weight", 1.0d).withVerifyRowOrder(true).verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL_3);
+        this.verifier.withVarianceThreshold("Age", 5.0d).withVarianceThreshold("Weight", 1.0d).withVerifyRowOrder(true).verify(TableTestUtils.ACTUAL_3);
     }
 
     @Test(expected = AssertionError.class)
     public void mismatchedTypesFormatting()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.withVarianceThreshold(5.0d).withVerifyRowOrder(true).verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL);
+        this.verifier.withVarianceThreshold(5.0d).withVerifyRowOrder(true).verify(TableTestUtils.ACTUAL);
     }
 
     @Test
     public void rowOrderSuccess()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.withTolerance(1.0).withVerifyRowOrder(false).verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL);
+        this.verifier.withTolerance(1.0).withVerifyRowOrder(false).verify(TableTestUtils.ACTUAL);
         this.verifier.succeeded(this.description.get());
     }
 
@@ -174,21 +173,21 @@ public class TableVerifierTest
     public void rowOrderFailure()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL);
+        this.verifier.verify(TableTestUtils.ACTUAL);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void expectedAndOutputDirsMustBeDifferent()
     {
         this.verifier.withOutputDir(TableTestUtils.getExpectedDirectory()).starting(this.description.get());
-        this.verifier.verify("", null);
+        this.verifier.verify(Lists.fixedSize.of());
     }
 
     @Test(expected = IllegalStateException.class)
     public void ensureStartingIsCalled()
     {
         TableVerifier localVerifier = new TableVerifier().withExpectedDir(TableTestUtils.getExpectedDirectory());
-        localVerifier.verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL);
+        localVerifier.verify(TableTestUtils.ACTUAL);
     }
 
     @Test
@@ -269,14 +268,7 @@ public class TableVerifierTest
         this.verifier.withLifecycleEventHandler(handler);
         this.verifier.starting(this.description.get());
         this.verifier.verify("table1", TableTestUtils.ACTUAL);
-        TableTestUtils.assertAssertionError(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                verifier.succeeded(description.get());
-            }
-        });
+        TableTestUtils.assertAssertionError(() -> verifier.succeeded(description.get()));
         Assert.assertEquals("started failed ", handler.lifecycle);
     }
 
@@ -285,15 +277,11 @@ public class TableVerifierTest
     {
         final RuntimeException exception = new RuntimeException();
         final AtomicBoolean atomicBoolean = new AtomicBoolean(false);
-        ExceptionHandler exceptionHandler = new ExceptionHandler()
+        ExceptionHandler exceptionHandler = (outputFile, throwable) ->
         {
-            @Override
-            public void onException(File outputFile, Throwable throwable)
-            {
-                Assert.assertTrue(outputFile.exists());
-                Assert.assertSame(exception, throwable);
-                atomicBoolean.set(true);
-            }
+            Assert.assertTrue(outputFile.exists());
+            Assert.assertSame(exception, throwable);
+            atomicBoolean.set(true);
         };
         this.verifier.withExceptionHandler(exceptionHandler);
         this.verifier.starting(this.description.get());
@@ -310,12 +298,16 @@ public class TableVerifierTest
         this.verifier.succeeded(this.description.get());
     }
 
-    private static final Function<VerifiableTable, VerifiableTable> ACTUAL_ADAPTER = new Function<VerifiableTable, VerifiableTable>() {
+    private static final Function<VerifiableTable, VerifiableTable> ACTUAL_ADAPTER = new Function<VerifiableTable, VerifiableTable>()
+    {
         @Override
-        public VerifiableTable valueOf(VerifiableTable actual) {
-            return new DefaultVerifiableTableAdapter(actual) {
+        public VerifiableTable valueOf(VerifiableTable actual)
+        {
+            return new DefaultVerifiableTableAdapter(actual)
+            {
                 @Override
-                public String getColumnName(int columnIndex) {
+                public String getColumnName(int columnIndex)
+                {
                     return "Adapted " + super.getColumnName(columnIndex);
                 }
             };
@@ -327,7 +319,7 @@ public class TableVerifierTest
     {
         this.verifier.starting(this.description.get());
         this.verifier.withActualAdapter(ACTUAL_ADAPTER)
-          .verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL);
+                .verify(TableTestUtils.ACTUAL);
         this.verifier.succeeded(this.description.get());
     }
 
@@ -338,8 +330,7 @@ public class TableVerifierTest
         LinkedHashMap<String, VerifiableTable> tableMap = new LinkedHashMap<>();
         tableMap.put("table1", TableTestUtils.ACTUAL);
         tableMap.put("table2", TableTestUtils.ACTUAL_2);
-        this.verifier.withActualAdapter(ACTUAL_ADAPTER).withTablesNotToAdapt("table1")
-                .verify(tableMap);
+        this.verifier.withActualAdapter(ACTUAL_ADAPTER).withTablesNotToAdapt("table1").verify(tableMap);
         this.verifier.succeeded(this.description.get());
     }
 
@@ -347,22 +338,24 @@ public class TableVerifierTest
     public void actualAdapterNoExpectedFile()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.withActualAdapter(new Function<VerifiableTable, VerifiableTable>() {
-            @Override
-            public VerifiableTable valueOf(VerifiableTable actual) {
-                Assert.assertSame(TableTestUtils.ACTUAL_2, actual);
-                return TableTestUtils.ACTUAL;
-            }
+        this.verifier.withActualAdapter(actual ->
+        {
+            Assert.assertSame(TableTestUtils.ACTUAL_2, actual);
+            return TableTestUtils.ACTUAL;
         }).verify(Maps.fixedSize.of(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL), Maps.fixedSize.of(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL_2));
         this.verifier.succeeded(this.description.get());
     }
 
-    private static final Function<VerifiableTable, VerifiableTable> EXPECTED_ADAPTER = new Function<VerifiableTable, VerifiableTable>() {
+    private static final Function<VerifiableTable, VerifiableTable> EXPECTED_ADAPTER = new Function<VerifiableTable, VerifiableTable>()
+    {
         @Override
-        public VerifiableTable valueOf(VerifiableTable actual) {
-            return new DefaultVerifiableTableAdapter(actual) {
+        public VerifiableTable valueOf(VerifiableTable actual)
+        {
+            return new DefaultVerifiableTableAdapter(actual)
+            {
                 @Override
-                public String getColumnName(int columnIndex) {
+                public String getColumnName(int columnIndex)
+                {
                     return super.getColumnName(columnIndex).substring(8); // strip "Ignored "
                 }
             };
@@ -374,7 +367,7 @@ public class TableVerifierTest
     {
         this.verifier.starting(this.description.get());
         this.verifier.withExpectedAdapter(EXPECTED_ADAPTER)
-          .verify(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL);
+                .verify(TableTestUtils.ACTUAL);
         this.verifier.succeeded(this.description.get());
     }
 
@@ -385,8 +378,7 @@ public class TableVerifierTest
         LinkedHashMap<String, VerifiableTable> tableMap = new LinkedHashMap<>();
         tableMap.put("table1", TableTestUtils.ACTUAL);
         tableMap.put("table2", TableTestUtils.ACTUAL_2);
-        this.verifier.withExpectedAdapter(EXPECTED_ADAPTER).withTablesNotToAdapt("table1")
-          .verify(tableMap);
+        this.verifier.withExpectedAdapter(EXPECTED_ADAPTER).withTablesNotToAdapt("table1").verify(tableMap);
         this.verifier.succeeded(this.description.get());
     }
 
@@ -394,14 +386,10 @@ public class TableVerifierTest
     public void expectedAdapterNoExpectedFile()
     {
         this.verifier.starting(this.description.get());
-        this.verifier.withExpectedAdapter(new Function<VerifiableTable, VerifiableTable>()
+        this.verifier.withExpectedAdapter(actual ->
         {
-            @Override
-            public VerifiableTable valueOf(VerifiableTable actual)
-            {
-                Assert.assertSame(TableTestUtils.ACTUAL_2, actual);
-                return TableTestUtils.ACTUAL;
-            }
+            Assert.assertSame(TableTestUtils.ACTUAL_2, actual);
+            return TableTestUtils.ACTUAL;
         }).verify(Maps.fixedSize.of(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL_2), Maps.fixedSize.of(TableTestUtils.TABLE_NAME, TableTestUtils.ACTUAL));
         this.verifier.succeeded(this.description.get());
     }

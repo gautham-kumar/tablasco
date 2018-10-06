@@ -14,24 +14,22 @@
  * under the License.
  */
 
-package com.gs.tablasco.compare;
+package com.gs.tablasco.verify;
 
-import com.gs.tablasco.HtmlOptions;
-import org.w3c.dom.Element;
+import com.gs.tablasco.VerifiableTable;
+import com.gs.tablasco.compare.ListComparableTable;
 
 import java.util.List;
 
-public interface FormattableTable
+public class ListVerifiableTable extends ListComparableTable implements VerifiableTable
 {
-    int getPassedCellCount();
+    public ListVerifiableTable(String tableName, List<List<Object>> headersAndData)
+    {
+        super(tableName, headersAndData);
+    }
 
-    int getTotalCellCount();
-
-    List<ResultCell> getHeaders();
-
-    int getMatchedColumnsAhead(int col);
-
-    void appendTo(String testName, String tableName, Element table, HtmlOptions htmlOptions);
-
-    boolean isSuccess();
+    public ListVerifiableTable(String tableName, List<?> headers, List<List<Object>> data)
+    {
+        super(tableName, headers, data);
+    }
 }

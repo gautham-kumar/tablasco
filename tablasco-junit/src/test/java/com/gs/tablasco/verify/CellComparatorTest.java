@@ -16,6 +16,9 @@
 
 package com.gs.tablasco.verify;
 
+import com.gs.tablasco.compare.CellFormatter;
+import com.gs.tablasco.compare.ToleranceCellComparator;
+import com.gs.tablasco.compare.VarianceCellComparator;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -17,6 +17,8 @@
 package com.gs.tablasco.verify;
 
 import com.gs.tablasco.VerifiableTable;
+import com.gs.tablasco.compare.ResultTable;
+import com.gs.tablasco.compare.SingleTableComparator;
 import org.eclipse.collections.impl.list.mutable.FastList;
 
 import java.util.LinkedHashMap;
@@ -31,11 +33,11 @@ import java.util.Map;
 
 public class MultiTableVerifier
 {
-    private final SingleTableVerifier singleTableVerifier;
+    private final SingleTableComparator singleTableComparator;
 
-    public MultiTableVerifier(SingleTableVerifier singleSingleTableVerifier)
+    public MultiTableVerifier(SingleTableComparator singleSingleTableVerifier)
     {
-        this.singleTableVerifier = singleSingleTableVerifier;
+        this.singleTableComparator = singleSingleTableVerifier;
     }
 
     public Map<String, ResultTable> verifyTables(Map<String, ? extends VerifiableTable> expectedResults, Map<String, ? extends VerifiableTable> actualResults)
@@ -69,7 +71,7 @@ public class MultiTableVerifier
         {
             throw new IllegalStateException("Expected table '" + tableName + "' has no columns");
         }
-        ResultTable results = this.singleTableVerifier.verify(actualData, expectedData);
+        ResultTable results = this.singleTableComparator.compare(actualData, expectedData);
         resultsMap.put(tableName, results);
     }
 }

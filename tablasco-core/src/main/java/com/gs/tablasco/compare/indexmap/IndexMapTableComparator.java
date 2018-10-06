@@ -19,7 +19,6 @@ package com.gs.tablasco.compare.indexmap;
 import com.gs.tablasco.ComparableTable;
 import com.gs.tablasco.compare.*;
 import org.eclipse.collections.api.block.function.Function2;
-import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.list.mutable.FastList;
@@ -84,7 +83,7 @@ public class IndexMapTableComparator implements SingleTableComparator
                     (columnName, value) -> ResultCell.createSurplusCell(columnComparators.getComparator(columnName).getFormatter(), value)));
         }
 
-        LOGGER.info("Verifying {} col {} row rhs and {} col {} row lhs tables", new Object[]{rhsData.getColumnCount(), rhsData.getRowCount(), lhsData.getColumnCount(), lhsData.getRowCount()});
+        LOGGER.info("Verifying {} col {} row rhs and {} col {} row lhs tables", rhsData.getColumnCount(), rhsData.getRowCount(), lhsData.getColumnCount(), lhsData.getRowCount());
 
         LOGGER.debug("Generating column indices");
         MutableList<IndexMap> columnIndices = getColumnIndices(rhsData, lhsData, columnComparators.getDefaultComparator());
@@ -126,14 +125,7 @@ public class IndexMapTableComparator implements SingleTableComparator
         MutableList<UnmatchedIndexMap> allMissingRows = rowGenerator.getMissing();
         MutableList<UnmatchedIndexMap> allSurplusRows = rowGenerator.getSurplus();
 
-        MutableList<IndexMap> matchedColumns = columnIndices.select(new Predicate<IndexMap>()
-        {
-            @Override
-            public boolean accept(IndexMap each)
-            {
-                return each.isMatched();
-            }
-        });
+        MutableList<IndexMap> matchedColumns = columnIndices.select(IndexMap::isMatched);
         LOGGER.debug("Partial-matching {} missing and {} surplus rows", allMissingRows.size(), allSurplusRows.size());
         PartialMatcher partialMatcher = new AdaptivePartialMatcher(rhsData, lhsData, columnComparators, this.bestMatchThreshold);
         if (rhsData instanceof KeyedComparableTable)
