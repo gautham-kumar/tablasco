@@ -58,7 +58,7 @@ public class IgnoreMissingAndSurplusTest
         final VerifiableTable table1 = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2, "Col 1", "Col 2", "A1", "A2", "B1", "B2"));
         final VerifiableTable table2 = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2, "Col 1", "Col 2", "C1", "C2", "B1", "B2"));
 
-        TableTestUtils.assertAssertionError(() -> tableVerifier.withIgnoreMissingRows().compare(table1, table2));
+        TableTestUtils.assertAssertionError(() -> tableVerifier.withIgnoreMissingRows().verify(table1, table2));
 
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
@@ -85,7 +85,7 @@ public class IgnoreMissingAndSurplusTest
         final VerifiableTable table1 = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2, "Col 1", "Col 2", "A1", "A2", "B1", "B2"));
         final VerifiableTable table2 = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2, "Col 1", "Col 2", "C1", "C2", "B1", "B2"));
 
-        TableTestUtils.assertAssertionError(() -> tableVerifier.withIgnoreSurplusRows().compare(table1, table2));
+        TableTestUtils.assertAssertionError(() -> tableVerifier.withIgnoreSurplusRows().verify(table1, table2));
 
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
@@ -131,7 +131,7 @@ public class IgnoreMissingAndSurplusTest
         final VerifiableTable table1 = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2, "Col 1", "Col 2", "A1", "A2", "B1", "B2"));
         final VerifiableTable table2 = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2, "Col 1", "Col 3", "C1", "C2", "B1", "B2"));
 
-        TableTestUtils.assertAssertionError(() -> tableVerifier.withIgnoreMissingRows().withIgnoreSurplusRows().compare(table1, table2));
+        TableTestUtils.assertAssertionError(() -> tableVerifier.withIgnoreMissingRows().withIgnoreSurplusRows().verify(table1, table2));
 
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
@@ -232,7 +232,7 @@ public class IgnoreMissingAndSurplusTest
         final VerifiableTable expected = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2, "Col 1", "Col 3", "A1", "A3"));
         final VerifiableTable actual = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2, "Col 1", "Col 2", "A1", "A2"));
 
-        TableTestUtils.assertAssertionError(() -> tableVerifier.withIgnoreMissingRows().compare(expected, actual));
+        TableTestUtils.assertAssertionError(() -> tableVerifier.withIgnoreSurplusColumns().verify(expected, actual));
 
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
@@ -274,7 +274,7 @@ public class IgnoreMissingAndSurplusTest
         final VerifiableTable expected = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2, "Col 1", "Col 2", "A1", "A2"));
         final VerifiableTable actual = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2, "Col 1", "Col 3", "A1", "A3"));
 
-        TableTestUtils.assertAssertionError(() -> tableVerifier.withIgnoreMissingRows().compare(expected, actual));
+        TableTestUtils.assertAssertionError(() -> tableVerifier.withIgnoreMissingColumns().verify(expected, actual));
 
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
