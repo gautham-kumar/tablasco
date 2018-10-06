@@ -33,8 +33,8 @@ public class IgnoreTablesTest
     @Test
     public void ignoreTables() throws IOException
     {
-        VerifiableTable tableA = new DefaultVerifiableTableAdapter(TableTestUtils.createTable(1, "Col 1", "A"));
-        VerifiableTable tableX = new DefaultVerifiableTableAdapter(TableTestUtils.createTable(1, "Col 1", "X"));
+        VerifiableTable tableA = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 1, "Col 1", "A"));
+        VerifiableTable tableX = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 1, "Col 1", "X"));
 
         this.tableVerifier.withIgnoreTables("table1", "table3").verify(
                 Maps.fixedSize.of("table1", tableA, "table2", tableA, "table3", tableX),

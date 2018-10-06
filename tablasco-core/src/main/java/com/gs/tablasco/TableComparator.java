@@ -55,7 +55,6 @@ public class TableComparator<T extends TableComparator<T>>
     private Function<ComparableTable, ComparableTable> lhsAdapter = Functions.getPassThru();
     private long partialMatchTimeoutMillis = IndexMapTableComparator.DEFAULT_PARTIAL_MATCH_TIMEOUT_MILLIS;
 
-    private int compareCount = 0;
     private int htmlRowLimit = HtmlFormatter.DEFAULT_ROW_LIMIT;
     private boolean summarisedResults = false;
 
@@ -207,7 +206,7 @@ public class TableComparator<T extends TableComparator<T>>
      */
     public final T withRhsAdapter(Function<ComparableTable, ComparableTable> rhsAdapter)
     {
-        this.rhsAdapter = rhsAdapter;
+        this.rhsAdapter = sanitizeAdapter(rhsAdapter);
         return self();
     }
 
@@ -218,7 +217,7 @@ public class TableComparator<T extends TableComparator<T>>
      */
     public Function<ComparableTable, ComparableTable> getRhsAdapter()
     {
-        return this.rhsAdapter;
+        return sanitizeAdapter(this.rhsAdapter);
     }
 
     /**
@@ -358,7 +357,7 @@ public class TableComparator<T extends TableComparator<T>>
      */
     public final ComparisonResult compare(ComparableTable lhsTable, ComparableTable rhsTable)
     {
-        return this.compare(lhsTable, rhsTable, true, true);
+        return this.compare(lhsTable, rhsTable, false, false);
     }
 
     protected final ComparisonResult compare(ComparableTable lhsTable, ComparableTable rhsTable, boolean skipLhsAdaptation, boolean skipRhsAdaptation)
@@ -366,7 +365,7 @@ public class TableComparator<T extends TableComparator<T>>
         ComparableTable adaptedLhsTable = skipLhsAdaptation ? lhsTable : this.lhsAdapter.valueOf(lhsTable);
         ComparableTable adaptedRhsTable = skipRhsAdaptation ? rhsTable : this.rhsAdapter.valueOf(rhsTable);
         FormattableTable resultTable = getVerifiedResults(adaptedLhsTable, adaptedRhsTable);
-        return new ComparisonResult(getComparisonName(lhsTable, rhsTable), resultTable, ++this.compareCount, newHtmlFormatter());
+        return new ComparisonResult(getComparisonName(lhsTable, rhsTable), resultTable, newHtmlFormatter());
     }
 
     /**
@@ -377,7 +376,7 @@ public class TableComparator<T extends TableComparator<T>>
     {
         Procedure2<String, Map<String, ResultTable>> appendToHtml = (levelName, map) ->
         {
-            HtmlFormatter formatter = new HtmlFormatter(new HtmlOptions(false, HtmlFormatter.DEFAULT_ROW_LIMIT, false, true, false));
+            HtmlFormatter formatter = new HtmlFormatter(new HtmlOptions(false, HtmlFormatter.DEFAULT_ROW_LIMIT, false, true, false, Sets.fixedSize.of()));
             formatter.appendResults(outputPath, levelName, map, Metadata.newEmpty());
         };
 
@@ -402,12 +401,18 @@ public class TableComparator<T extends TableComparator<T>>
 
     final HtmlFormatter newHtmlFormatter()
     {
-        return new HtmlFormatter(new HtmlOptions(this.assertionSummary, this.htmlRowLimit, this.hideMatchedTables, this.hideMatchedRows, this.hideMatchedColumns));
+        return new HtmlFormatter(this.getHtmlOptions(Sets.fixedSize.of()));
+    }
+
+    protected HtmlOptions getHtmlOptions(Set<String> tablesToAlwaysShowMatchedRowsFor)
+    {
+        return new HtmlOptions(this.assertionSummary, this.htmlRowLimit, this.hideMatchedTables, this.hideMatchedRows, this.hideMatchedColumns, tablesToAlwaysShowMatchedRowsFor);
     }
 
     private SingleTableComparator newSingleTableComparator()
     {
-        return new IndexMapTableComparator(this.getColumnComparators(), this.compareRowOrder, IndexMapTableComparator.DEFAULT_BEST_MATCH_THRESHOLD, this.ignoreSurplusRows, this.ignoreMissingRows, this.ignoreSurplusColumns, this.ignoreMissingColumns, this.partialMatchTimeoutMillis);
+        ColumnComparators comparators = this.getColumnComparatorsBuilder().build();
+        return new IndexMapTableComparator(comparators, this.compareRowOrder, IndexMapTableComparator.DEFAULT_BEST_MATCH_THRESHOLD, this.ignoreSurplusRows, this.ignoreMissingRows, this.ignoreSurplusColumns, this.ignoreMissingColumns, this.partialMatchTimeoutMillis);
     }
 
     private String getComparisonName(ComparableTable lhsTable, ComparableTable rhsTable)
@@ -423,9 +428,14 @@ public class TableComparator<T extends TableComparator<T>>
         return Sets.fixedSize.of(lhsTable.getTableName(), rhsTable.getTableName()).makeString();
     }
 
-    protected ColumnComparators getColumnComparators()
+    protected Function<ComparableTable, ComparableTable> sanitizeAdapter(Function<ComparableTable, ComparableTable> adapter)
     {
-        return this.columnComparatorsBuilder.build();
+        return adapter;
+    }
+
+    protected ColumnComparators.Builder getColumnComparatorsBuilder()
+    {
+        return this.columnComparatorsBuilder;
     }
 
     T self()

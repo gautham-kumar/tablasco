@@ -29,9 +29,13 @@ public class ColumnComparators implements Serializable
 {
     private final Twin<CellComparator> defaultCellComparator;
     private final MapIterable<String, Twin<CellComparator>> comparatorsByColumn;
+    private final String lhsLabel;
+    private final String rhsLabel;
 
-    private ColumnComparators(Double defaultTolerance, Double defaultVarianceThreshold, ImmutableMap<String, Builder.ToleranceVarianceValues> values)
+    private ColumnComparators(Double defaultTolerance, Double defaultVarianceThreshold, ImmutableMap<String, Builder.ToleranceVarianceValues> values, String lhsLabel, String rhsLabel)
     {
+        this.lhsLabel = lhsLabel;
+        this.rhsLabel = rhsLabel;
         this.defaultCellComparator = Tuples.twin(
                 getCellComparator(defaultTolerance, defaultVarianceThreshold),
                 new ToleranceCellComparator(getCellFormatter(defaultTolerance, false)));
@@ -73,13 +77,15 @@ public class ColumnComparators implements Serializable
 
     private CellFormatter getCellFormatter(Double tolerance, boolean isGroupingUsed)
     {
-        return new CellFormatter(tolerance == null ? 1.0e-14d : tolerance, isGroupingUsed);
+        return new CellFormatter(tolerance == null ? 1.0e-14d : tolerance, isGroupingUsed, this.lhsLabel, this.rhsLabel);
     }
 
     public static class Builder
     {
         private Double defaultTolerance;
         private Double defaultVarianceThreshold;
+        private String lhsLabel = "Lhs";
+        private String rhsLabel = "Rhs";
         private final MutableMap<String, ToleranceVarianceValues> toleranceVarianceValues = Maps.mutable.of();
 
         public Builder withTolerance(double tolerance)
@@ -106,9 +112,16 @@ public class ColumnComparators implements Serializable
             return this;
         }
 
+        public Builder withLabels(String lhsLabel, String rhsLabel)
+        {
+            this.lhsLabel = lhsLabel;
+            this.rhsLabel = rhsLabel;
+            return this;
+        }
+
         public ColumnComparators build()
         {
-            return new ColumnComparators(this.defaultTolerance, this.defaultVarianceThreshold, this.toleranceVarianceValues.toImmutable());
+            return new ColumnComparators(this.defaultTolerance, this.defaultVarianceThreshold, this.toleranceVarianceValues.toImmutable(), this.lhsLabel, this.rhsLabel);
         }
 
         private ToleranceVarianceValues toleranceVarianceValue(String columnName)

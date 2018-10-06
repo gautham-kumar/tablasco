@@ -16,6 +16,8 @@
 
 package com.gs.tablasco;
 
+import java.util.Set;
+
 public class HtmlOptions
 {
     private final boolean displayAssertionSummary;
@@ -23,14 +25,16 @@ public class HtmlOptions
     private final boolean hideMatchedTables;
     private final boolean hideMatchedRows;
     private final boolean hideMatchedColumns;
+    private final Set<String> tablesToAlwaysShowMatchedRowsFor;
 
-    public HtmlOptions(boolean displayAssertionSummary, int htmlRowLimit, boolean hideMatchedTables, boolean hideMatchedRows, boolean hideMatchedColumns)
+    HtmlOptions(boolean displayAssertionSummary, int htmlRowLimit, boolean hideMatchedTables, boolean hideMatchedRows, boolean hideMatchedColumns, Set<String> tablesToAlwaysShowMatchedRowsFor)
     {
         this.displayAssertionSummary = displayAssertionSummary;
         this.hideMatchedColumns = hideMatchedColumns;
         this.hideMatchedTables = hideMatchedTables;
         this.htmlRowLimit = htmlRowLimit;
         this.hideMatchedRows = hideMatchedRows;
+        this.tablesToAlwaysShowMatchedRowsFor = tablesToAlwaysShowMatchedRowsFor;
     }
 
     public boolean isHideMatchedColumns()
@@ -48,9 +52,9 @@ public class HtmlOptions
         return this.htmlRowLimit;
     }
 
-    public boolean isHideMatchedRows()
+    public boolean isHideMatchedRowsFor(String tableName)
     {
-        return this.hideMatchedRows;
+        return this.hideMatchedRows && !this.tablesToAlwaysShowMatchedRowsFor.contains(tableName);
     }
 
     boolean isHideMatchedTables()

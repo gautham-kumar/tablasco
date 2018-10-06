@@ -21,6 +21,7 @@ import com.gs.tablasco.compare.Metadata;
 import com.gs.tablasco.compare.ResultTable;
 import com.gs.tablasco.compare.SummaryResultTable;
 import org.eclipse.collections.impl.factory.Maps;
+import org.eclipse.collections.impl.factory.Sets;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class HtmlTestUtil
     public static void append(Path path, String methodName, Map<String, ? extends FormattableTable> results)
     {
         HtmlFormatter htmlFormatter = new HtmlFormatter(
-                new HtmlOptions(false, HtmlFormatter.DEFAULT_ROW_LIMIT, false, false, false));
+                new HtmlOptions(false, HtmlFormatter.DEFAULT_ROW_LIMIT, false, false, false, Sets.fixedSize.of()));
 
         htmlFormatter.appendResults(path, methodName, results, Metadata.newEmpty());
     }

@@ -33,8 +33,8 @@ public class HtmlRowLimitTest
     @Test
     public void tablesMatch() throws IOException
     {
-        ComparableTable table = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2", "E1", "E2");
-        this.tableVerifier.compare(table, table);
+        VerifiableTable table = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2", "E1", "E2");
+        this.tableVerifier.verify(table, table);
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -62,9 +62,9 @@ public class HtmlRowLimitTest
     @Test
     public void tablesDoNotMatch() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2", "E1", "E2");
-        final ComparableTable table2 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "A2", "B1", "B2", "C1", "C2", "D1", "DX", "E1", "E2");
-        TableTestUtils.assertAssertionError(() -> tableVerifier.compare(table1, table2));
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2", "E1", "E2");
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "A2", "B1", "B2", "C1", "C2", "D1", "DX", "E1", "E2");
+        TableTestUtils.assertAssertionError(() -> tableVerifier.verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -92,9 +92,9 @@ public class HtmlRowLimitTest
     @Test
     public void hideMatchedRows() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2", "E1", "E2");
-        final ComparableTable table2 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "AX", "B1", "B2", "C1", "C2", "D1", "DX", "E1", "E2");
-        TableTestUtils.assertAssertionError(() -> tableVerifier.withHideMatchedRows(true).compare(table1, table2));
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2", "E1", "E2");
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "AX", "B1", "B2", "C1", "C2", "D1", "DX", "E1", "E2");
+        TableTestUtils.assertAssertionError(() -> tableVerifier.withHideMatchedRows(true).verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -125,11 +125,11 @@ public class HtmlRowLimitTest
     @Test
     public void hideMatchedRows2() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2");
-        final ComparableTable table2 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "A2", "B1", "B2", "C1", "CX", "D1", "DX");
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2");
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "A2", "B1", "B2", "C1", "CX", "D1", "DX");
         TableTestUtils.assertAssertionError(() ->
         {
-            tableVerifier.withHtmlRowLimit(1).withHideMatchedRows(true).compare(table1, table2);
+            tableVerifier.withHtmlRowLimit(1).withHideMatchedRows(true).verify(table1, table2);
             ;
         });
         Assert.assertEquals(

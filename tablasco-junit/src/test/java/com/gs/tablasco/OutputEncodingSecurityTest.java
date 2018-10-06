@@ -32,17 +32,9 @@ public class OutputEncodingSecurityTest
     @Test
     public void htmlTagsAreEncoded() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(1, "Col", "<script language=\"javascript\">alert(\"boo\")</script>", "<script language=\"javascript\">alert(\"boo\")</script>");
-        final ComparableTable table2 = TableTestUtils.createTable(1, "Col", "<script language=\"javascript\">alert(\"boo\")</script>", "<script language=\"javascript\">alert(\"foo\")</script>");
-        TableTestUtils.assertAssertionError(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                tableVerifier.compare(table1, table2);
-                ;
-            }
-        });
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 1, "Col", "<script language=\"javascript\">alert(\"boo\")</script>", "<script language=\"javascript\">alert(\"boo\")</script>");
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 1, "Col", "<script language=\"javascript\">alert(\"boo\")</script>", "<script language=\"javascript\">alert(\"foo\")</script>");
+        TableTestUtils.assertAssertionError(() -> tableVerifier.verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +

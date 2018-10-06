@@ -42,7 +42,7 @@ import java.util.Map;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public abstract class AbstractSingleTableVerifierTest
 {
-    private static final CellComparator CELL_COMPARATOR = new ToleranceCellComparator(new CellFormatter(1.0, true));
+    private static final CellComparator CELL_COMPARATOR = new ToleranceCellComparator(new CellFormatter(1.0, true, "Expected", "Actual"));
 
     @Rule
     public final TestName testName = new TestName();
@@ -91,7 +91,7 @@ public abstract class AbstractSingleTableVerifierTest
 
     private void assertVerification()
     {
-        ColumnComparators columnComparators = new ColumnComparators.Builder().withTolerance(1.0d).build();
+        ColumnComparators columnComparators = new ColumnComparators.Builder().withLabels("Expected", "Actual").withTolerance(1.0d).build();
         SingleTableComparator comparator = createSingleTableVerifier(columnComparators);
         List<List<ResultCell>> actualVerification = comparator.compare(this.actual, this.expected).getComparedRows();
         ComparableTable rebasedExpected = getRebasedExpected();

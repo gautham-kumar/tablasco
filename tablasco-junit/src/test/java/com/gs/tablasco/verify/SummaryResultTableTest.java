@@ -29,7 +29,7 @@ public class SummaryResultTableTest
     @Test
     public void isSerializable() throws IOException, ClassNotFoundException
     {
-        CellComparator cellComparator = new ToleranceCellComparator(new CellFormatter(1.0, false));
+        CellComparator cellComparator = new ToleranceCellComparator(new CellFormatter(1.0, false, "Expected", "Actual"));
         List<ResultCell> row = Arrays.asList(
                 ResultCell.createMatchedCell(cellComparator, "A", "A"),
                 ResultCell.createMatchedCell(cellComparator, "A", "B"),
@@ -53,7 +53,7 @@ public class SummaryResultTableTest
     @Test
     public void merge()
     {
-        CellComparator cellComparator = new ToleranceCellComparator(new CellFormatter(1.0, false));
+        CellComparator cellComparator = new ToleranceCellComparator(new CellFormatter(1.0, false, "Expected", "Actual"));
         SummaryResultTable table1 = new SummaryResultTable(new ResultTable(new boolean[2], Arrays.asList(
                 Arrays.asList(ResultCell.createMatchedCell(cellComparator, "Key", "Val")),
                 Arrays.asList(ResultCell.createMatchedCell(cellComparator, "A", "A")))));
@@ -74,5 +74,4 @@ public class SummaryResultTableTest
     {
         return table.getResultsByKey().toString();
     }
-
 }

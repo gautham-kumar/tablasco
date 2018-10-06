@@ -74,8 +74,7 @@ public class TableTestUtils
 
     static String getHtml(TableVerifier verifier, String tag) throws IOException
     {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(verifier.getOutputFile()), "UTF-8"));
-        try
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(verifier.getOutputFile()), "UTF-8")))
         {
             StringBuilder html = new StringBuilder();
             boolean foundTable = false;
@@ -99,14 +98,15 @@ public class TableTestUtils
                 line = reader.readLine();
             }
         }
-        finally
-        {
-            reader.close();
-        }
         return null;
     }
 
-    public static ComparableTable createTable(int cols, Object... values)
+    public static VerifiableTable createVerifiableTable(String tableName, int cols, Object... values)
+    {
+        return new DefaultVerifiableTableAdapter(createTable(tableName, cols, values));
+    }
+
+    public static ComparableTable createTable(String tableName, int cols, Object... values)
     {
         List<List<Object>> headersAndRows = FastList.newListWith(ArrayAdapter.adapt(values).subList(0, cols));
         int start = cols;
@@ -116,7 +116,7 @@ public class TableTestUtils
             start += cols;
         }
         // wrapping just to get coverage on default table adapter
-        return new DefaultVerifiableTableAdapter(new ListVerifiableTable("Test", headersAndRows))
+        return new DefaultVerifiableTableAdapter(new ListVerifiableTable(tableName, headersAndRows))
         {
         };
     }
@@ -159,7 +159,7 @@ public class TableTestUtils
             runnable.run();
             Assert.fail("Expected AssertionError");
         }
-        catch (AssertionError e)
+        catch (AssertionError ignored)
         {
         }
     }

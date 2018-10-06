@@ -34,8 +34,8 @@ public class HideMatchedColumnsTest
     @Test
     public void allColumnsMatch() throws IOException
     {
-        ComparableTable table = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "A2", "B1", "B2");
-        this.tableVerifier.compare(table, table);
+        VerifiableTable table = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "A2", "B1", "B2");
+        this.tableVerifier.verify(table, table);
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -53,17 +53,17 @@ public class HideMatchedColumnsTest
     @Test
     public void missingAndSurplusRows() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(3,
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 3,
                 "Col 1", "Col 2", "Col 3",
                 "A1", "A2", "A3",
                 "B1", "B2", "B3",
                 "C1", "C2", "C3");
-        final ComparableTable table2 = TableTestUtils.createTable(3,
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 3,
                 "Col 1", "Col 2", "Col 3",
                 "B1", "B2", "B9",
                 "C1", "C2", "C9",
                 "D1", "D2", "D3");
-        TableTestUtils.assertAssertionError(() -> tableVerifier.compare(table1, table2));
+        TableTestUtils.assertAssertionError(() -> tableVerifier.verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -98,15 +98,15 @@ public class HideMatchedColumnsTest
     @Test
     public void multiMatchedColumns() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(8,
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 8,
                 "Col 1", "Col 2", "Col 3", "Col 4", "Col 5", "Col 6", "Col 7", "Col 8",
                 "A", "A", "A", "A", "A", "A", "A", "A",
                 "B", "B", "B", "B", "B", "B", "B", "B");
-        final ComparableTable table2 = TableTestUtils.createTable(8,
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 8,
                 "Col 1", "Col 2", "Col 3", "Col 4", "Col 5", "Col 6", "Col 7", "Col 8",
                 "A", "A", "A", "A", "A", "X", "A", "A",
                 "B", "B", "X", "B", "B", "B", "B", "B");
-        TableTestUtils.assertAssertionError(() -> tableVerifier.compare(table1, table2));
+        TableTestUtils.assertAssertionError(() -> tableVerifier.verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -140,8 +140,8 @@ public class HideMatchedColumnsTest
     @Test
     public void keyColumnIgnored() throws IOException
     {
-        ComparableTable table = new KeyedVerifiableTableAdapter(TableTestUtils.createTable(3, "Col 1", "Col 2", "Col 3", "A", "A", "A"), 0);
-        this.tableVerifier.compare(table, table);
+        VerifiableTable table = new KeyedVerifiableTableAdapter(TableTestUtils.createVerifiableTable("name", 3, "Col 1", "Col 2", "Col 3", "A", "A", "A"), 0);
+        this.tableVerifier.verify(table, table);
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -158,19 +158,19 @@ public class HideMatchedColumnsTest
     @Test
     public void matchedRowsAndColumns() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(4,
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 4,
                 "Col 1", "Col 2", "Col 3", "Col 3",
                 "A", "A", "A", "A",
                 "B", "B", "B", "B",
                 "C", "C", "C", "C",
                 "D", "D", "D", "D");
-        final ComparableTable table2 = TableTestUtils.createTable(4,
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 4,
                 "Col 1", "Col 2", "Col 3", "Col 3",
                 "A", "A", "A", "X",
                 "B", "B", "B", "B",
                 "C", "C", "C", "C",
                 "X", "D", "D", "D");
-        TableTestUtils.assertAssertionError(() -> tableVerifier.withHideMatchedRows(true).compare(table1, table2));
+        TableTestUtils.assertAssertionError(() -> tableVerifier.withHideMatchedRows(true).verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +

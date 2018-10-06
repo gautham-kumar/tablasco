@@ -16,8 +16,12 @@
 
 package com.gs.tablasco;
 
+import com.gs.tablasco.compare.ColumnComparators;
 import com.gs.tablasco.compare.Metadata;
+import com.gs.tablasco.compare.ResultTable;
 import com.gs.tablasco.files.*;
+import com.gs.tablasco.investigation.Investigation;
+import com.gs.tablasco.investigation.Sherlock;
 import com.gs.tablasco.lifecycle.DefaultExceptionHandler;
 import com.gs.tablasco.lifecycle.DefaultLifecycleEventHandler;
 import com.gs.tablasco.lifecycle.ExceptionHandler;
@@ -29,9 +33,11 @@ import com.gs.tablasco.results.TableDataLoader;
 import com.gs.tablasco.results.parser.ExpectedResultsCache;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
+import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
 import org.eclipse.collections.impl.list.mutable.FastList;
 import org.eclipse.collections.impl.map.mutable.UnifiedMap;
@@ -47,6 +53,7 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -106,6 +113,7 @@ public final class TableVerifier extends TableComparator<TableVerifier> implemen
     private Future<ParsedResults> expectedResultsFuture;
     private LifecycleEventHandler lifecycleEventHandler = new DefaultLifecycleEventHandler();
     private ExceptionHandler exceptionHandler = new DefaultExceptionHandler();
+    private int verifyCount = 0;
 
     private final TestWatcherBridge bridge = new TestWatcherBridge(this);
 
@@ -556,7 +564,7 @@ public final class TableVerifier extends TableComparator<TableVerifier> implemen
 
         if (this.isRebasing)
         {
-            this.newRebaser().rebase(this.description.getMethodName(), filterTables(actualTables), this.getExpectedFile());
+            this.newRebaser().rebase(this.description.getMethodName(), filterAndAdaptForRebase(actualTables), this.getExpectedFile());
         }
         else
         {
@@ -590,7 +598,7 @@ public final class TableVerifier extends TableComparator<TableVerifier> implemen
 
     private Rebaser newRebaser()
     {
-        return new Rebaser(this.getColumnComparators(), this.metadata, this.baselineHeaders);
+        return new Rebaser(this.getColumnComparatorsBuilder().build(), this.metadata, this.baselineHeaders);
     }
 
     /**
@@ -602,6 +610,17 @@ public final class TableVerifier extends TableComparator<TableVerifier> implemen
     public final void verify(Map<String, VerifiableTable> expectedTables, Map<String, VerifiableTable> actualTables)
     {
         this.verify(asList(expectedTables), asList(actualTables));
+    }
+
+    /**
+     * Verifies an expected table with an actual table.
+     *
+     * @param expectedTable - expected table
+     * @param actualTable   - actual table
+     */
+    public final void verify(VerifiableTable expectedTable, VerifiableTable actualTable)
+    {
+        this.verify(Lists.fixedSize.of(expectedTable), Lists.fixedSize.of(actualTable));
     }
 
     /**
@@ -633,16 +652,18 @@ public final class TableVerifier extends TableComparator<TableVerifier> implemen
         }
     }
 
-    // to be called from tests
     private void verifyTables(List<Pair<VerifiableTable, VerifiableTable>> expectedAndActualTables, Metadata metadata)
     {
         ComparisonResult comparisonResult = ComparisonResult.newEmpty(this.newHtmlFormatter());
 
         for (Pair<VerifiableTable, VerifiableTable> expectedAndActualTable : expectedAndActualTables)
         {
-            VerifiableTable expected = expectedAndActualTable.getOne();
-            VerifiableTable actual = expectedAndActualTable.getTwo();
-            comparisonResult = comparisonResult.combine(this.compare(expected, actual, skipAdaptation(expected), skipAdaptation(actual)));
+            VerifiableTable expected = ignoreTable(expectedAndActualTable.getOne()) ? null : expectedAndActualTable.getOne();
+            VerifiableTable actual = ignoreTable(expectedAndActualTable.getTwo()) ? null : expectedAndActualTable.getTwo();
+            if (expected != null || actual != null)
+            {
+                comparisonResult = comparisonResult.combine(this.compare(expected, actual, skipAdaptation(expected), skipAdaptation(actual)));
+            }
         }
 
         boolean verificationSuccess = comparisonResult.isSuccess();
@@ -654,13 +675,30 @@ public final class TableVerifier extends TableComparator<TableVerifier> implemen
         }
         if (createActual)
         {
-            List<VerifiableTable> collect = ListIterate.collect(expectedAndActualTables, Functions.secondOfPair()).collect(this.getActualAdapter());
-            this.newRebaser().rebase(this.description.getMethodName(), collect, this.getActualFile());
+            List<VerifiableTable> actualTables = ListIterate.collect(expectedAndActualTables, Functions.secondOfPair());
+            this.newRebaser().rebase(this.description.getMethodName(), filterAndAdaptForRebase(actualTables), this.getActualFile());
         }
 
-        comparisonResult.generateBreakReport(this.description.getMethodName(), this.getOutputFile().toPath(), metadata);
+        comparisonResult.generateBreakReport(this.description.getMethodName(), this.getOutputFile().toPath(), metadata, ++this.verifyCount);
 
         Assert.assertTrue("Some tests failed. Check test results file " + this.getOutputFile().getAbsolutePath() + " for more details.", verificationSuccess);
+    }
+
+    /**
+     * Compares results from two environments and drills down on breaks in multiple
+     * steps until it finds the underlying data responsible for the breaks.
+     */
+    public void investigate(Investigation investigation)
+    {
+        Path outputPath = this.getOutputFile().toPath();
+
+        Procedure2<String, Map<String, ResultTable>> appendToHtml = (levelName, map) ->
+        {
+            HtmlFormatter formatter = new HtmlFormatter(new HtmlOptions(false, HtmlFormatter.DEFAULT_ROW_LIMIT, false, true, false, Sets.fixedSize.of()));
+            formatter.appendResults(outputPath, levelName, map, Metadata.newEmpty());
+        };
+
+        new Sherlock().handle(investigation, outputPath, appendToHtml);
     }
 
     private boolean skipAdaptation(VerifiableTable table)
@@ -670,7 +708,12 @@ public final class TableVerifier extends TableComparator<TableVerifier> implemen
 
     private List<VerifiableTable> filterTables(List<VerifiableTable> tables)
     {
-        return ListIterate.select(tables, table -> this.tableFilter.accept(table.getTableName()));
+        return ListIterate.reject(tables, this::ignoreTable);
+    }
+
+    private boolean ignoreTable(VerifiableTable table)
+    {
+        return table != null && !this.tableFilter.accept(table.getTableName());
     }
 
     private void runPreVerifyChecks()
@@ -691,9 +734,33 @@ public final class TableVerifier extends TableComparator<TableVerifier> implemen
         }
     }
 
+    private List<VerifiableTable> filterAndAdaptForRebase(List<VerifiableTable> actualTables)
+    {
+        return ListIterate.collect(filterTables(actualTables), Functions.ifElse(
+                this::skipAdaptation, Functions.getPassThru(), table -> getActualAdapter().valueOf(table)));
+    }
+
     private List<VerifiableTable> asList(Map<String, VerifiableTable> tables)
     {
         return Iterate.collect(tables.entrySet(), entry -> new DefaultVerifiableTableAdapter(entry.getKey(), entry.getValue()), FastList.newList());
+    }
+
+    @Override
+    protected HtmlOptions getHtmlOptions(Set<String> tablesToAlwaysShowMatchedRowsFor)
+    {
+        return super.getHtmlOptions(this.tablesToAlwaysShowMatchedRowsFor);
+    }
+
+    @Override
+    protected final ColumnComparators.Builder getColumnComparatorsBuilder()
+    {
+        return super.getColumnComparatorsBuilder().withLabels("Expected", "Actual");
+    }
+
+    @Override
+    protected final Function<ComparableTable, ComparableTable> sanitizeAdapter(Function<ComparableTable, ComparableTable> adapter)
+    {
+        return table -> table == null ? null : new DefaultVerifiableTableAdapter(adapter.valueOf(table));
     }
 
     @Override

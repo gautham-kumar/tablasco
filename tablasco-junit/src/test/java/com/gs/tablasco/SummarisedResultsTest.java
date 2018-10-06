@@ -34,7 +34,7 @@ public class SummarisedResultsTest
     @Test
     public void summarisedResults() throws IOException
     {
-        final VerifiableTable table1 = new DefaultVerifiableTableAdapter(TableTestUtils.createTable(2,
+        final VerifiableTable table1 = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2,
                 "key", "v1",
                 "d", "4",
                 "d", "4",
@@ -45,7 +45,7 @@ public class SummarisedResultsTest
                 "e", "5",
                 "e", "5"
         ));
-        final VerifiableTable table2 = new DefaultVerifiableTableAdapter(TableTestUtils.createTable(2,
+        final VerifiableTable table2 = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2,
                 "key", "v1",
                 "d", "4",
                 "d", "4",

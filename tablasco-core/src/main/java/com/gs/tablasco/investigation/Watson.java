@@ -46,7 +46,7 @@ class Watson
     public Watson(Procedure2<String, Map<String, ResultTable>> appendToHtml)
     {
         this.appendToHtml = appendToHtml;
-        ColumnComparators columnComparators = new ColumnComparators.Builder().withTolerance(1.0).build();
+        ColumnComparators columnComparators = new ColumnComparators.Builder().withLabels("Expected", "Actual").withTolerance(1.0).build();
         this.tableComparator = new IndexMapTableComparator(columnComparators, false, IndexMapTableComparator.DEFAULT_BEST_MATCH_THRESHOLD);
     }
 
@@ -70,7 +70,7 @@ class Watson
         }
 
         String levelDescription = nextLevel.getLevelDescription();
-        ResultTable results = this.tableComparator.compare(lhsResults, rhsResults);
+        ResultTable results = this.tableComparator.compare(rhsResults, lhsResults);
         this.appendToHtml.value(levelName, Maps.fixedSize.of(levelDescription, results));
         return getRowKeys(results, drilldownLimit);
     }

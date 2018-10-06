@@ -21,7 +21,6 @@ import com.gs.tablasco.investigation.InvestigationLevel;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -30,9 +29,6 @@ import java.util.concurrent.Callable;
 
 public class InvestigationTest
 {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     @Rule
     public final TableVerifier tableVerifier = new TableVerifier()
             .withFilePerMethod()
@@ -43,9 +39,9 @@ public class InvestigationTest
     {
         Investigation investigation = new SimpleInvestigation(
                 "Table",
-                TableTestUtils.createTable(2, "A", "K"),
-                TableTestUtils.createTable(2, "A", "X"));
-        this.tableVerifier.investigate(investigation, this.temporaryFolder.newFile().toPath());
+                TableTestUtils.createTable("name", 2, "A", "K"),
+                TableTestUtils.createTable("name", 2, "A", "X"));
+        this.tableVerifier.investigate(investigation);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -53,9 +49,9 @@ public class InvestigationTest
     {
         Investigation investigation = new SimpleInvestigation(
                 "Table",
-                TableTestUtils.createTable(2, "A", "K"),
-                TableTestUtils.createTable(2, "B", "K"));
-        this.tableVerifier.investigate(investigation, this.temporaryFolder.newFile().toPath());
+                TableTestUtils.createTable("name", 2, "A", "K"),
+                TableTestUtils.createTable("name", 2, "B", "K"));
+        this.tableVerifier.investigate(investigation);
     }
 
     @Test
@@ -64,24 +60,24 @@ public class InvestigationTest
         Investigation investigation = new ComplexInvestigation(Arrays.asList(
                 new SimpleInvestigationLevel(
                         "Initial Query",
-                        TableTestUtils.createTable(2, "C", "K", "1", "K1", "2", "K2"),
-                        TableTestUtils.createTable(2, "C", "K", "9", "K1", "2", "K2")),
+                        TableTestUtils.createTable("name", 2, "C", "K", "1", "K1", "2", "K2"),
+                        TableTestUtils.createTable("name", 2, "C", "K", "9", "K1", "2", "K2")),
                 new SimpleInvestigationLevel(
                         "First Drilldown",
-                        TableTestUtils.createTable(2, "C", "K", "3", "K3", "9", "K4"),
-                        TableTestUtils.createTable(2, "C", "K", "9", "K3", "4", "K4")),
+                        TableTestUtils.createTable("name", 2, "C", "K", "3", "K3", "9", "K4"),
+                        TableTestUtils.createTable("name", 2, "C", "K", "9", "K3", "4", "K4")),
                 new SimpleInvestigationLevel(
                         "Second Drilldown",
-                        TableTestUtils.createTable(2, "C", "K", "5", "K5", "6", "K6"),
-                        TableTestUtils.createTable(2, "C", "K", "5", "K5", "6", "K6"))),
+                        TableTestUtils.createTable("name", 2, "C", "K", "5", "K5", "6", "K6"),
+                        TableTestUtils.createTable("name", 2, "C", "K", "5", "K5", "6", "K6"))),
                 Arrays.asList(
                         null,
-                        Arrays.<Object>asList("K1"),
-                        Arrays.<Object>asList("K3", "K4")),
+                        Arrays.asList("K1"),
+                        Arrays.asList("K3", "K4")),
                 100);
         try
         {
-            this.tableVerifier.investigate(investigation, this.temporaryFolder.newFile().toPath());
+            this.tableVerifier.investigate(investigation);
         }
         catch (AssertionError e)
         {
@@ -158,48 +154,48 @@ public class InvestigationTest
         Investigation investigation = new ComplexInvestigation(Arrays.asList(
                 new SimpleInvestigationLevel(
                         "Initial Query",
-                        TableTestUtils.createTable(3,
+                        TableTestUtils.createTable("name", 3,
                                 "C1", "C2", "K",
                                 "1", "X", "K1",
                                 "2", "X", "K2",
                                 "3", "X", "K3"),
-                        TableTestUtils.createTable(2,
+                        TableTestUtils.createTable("name", 2,
                                 "C1", "K",
                                 "9", "K1",
                                 "2", "K2")),
                 new SimpleInvestigationLevel(
                         "First Drilldown",
-                        TableTestUtils.createTable(2,
+                        TableTestUtils.createTable("name", 2,
                                 "C1", "K",
                                 "9", "K1",
                                 "2", "K2"),
-                        TableTestUtils.createTable(3,
+                        TableTestUtils.createTable("name", 3,
                                 "C1", "C2", "K",
                                 "1", "X", "K1",
                                 "2", "X", "K2",
                                 "3", "X", "K3")),
                 new SimpleInvestigationLevel(
                         "First Drilldown",
-                        TableTestUtils.createTable(2,
+                        TableTestUtils.createTable("name", 2,
                                 "C1", "K"),
-                        TableTestUtils.createTable(3,
+                        TableTestUtils.createTable("name", 3,
                                 "C1", "C2", "K",
                                 "1", "X", "K1")),
                 new SimpleInvestigationLevel(
                         "First Drilldown",
-                        TableTestUtils.createTable(2,
+                        TableTestUtils.createTable("name", 2,
                                 "C1", "K"),
-                        TableTestUtils.createTable(2,
+                        TableTestUtils.createTable("name", 2,
                                 "C1", "K"))),
                 Arrays.asList(
                         null,
-                        Arrays.<Object>asList("K1", "K3"),
-                        Arrays.<Object>asList("K1", "K3"),
-                        Arrays.<Object>asList("K1")),
+                        Arrays.asList("K1", "K3"),
+                        Arrays.asList("K1", "K3"),
+                        Arrays.asList("K1")),
                 100);
         try
         {
-            this.tableVerifier.investigate(investigation, this.temporaryFolder.newFile().toPath());
+            this.tableVerifier.investigate(investigation);
         }
         catch (AssertionError e)
         {
@@ -314,15 +310,15 @@ public class InvestigationTest
         Investigation investigation = new ComplexInvestigation(Arrays.asList(
                 new SimpleInvestigationLevel(
                         "Initial Query",
-                        TableTestUtils.createTable(2, "C", "K", "1", "K1", "2", "K2"),
-                        TableTestUtils.createTable(2, "C", "K", "1", "K1", "2", "K2")),
+                        TableTestUtils.createTable("name", 2, "C", "K", "1", "K1", "2", "K2"),
+                        TableTestUtils.createTable("name", 2, "C", "K", "1", "K1", "2", "K2")),
                 new SimpleInvestigationLevel(
                         "First Drilldown",
-                        TableTestUtils.createTable(2, "C", "K", "3", "K3", "9", "K4"),
-                        TableTestUtils.createTable(2, "C", "K", "9", "K3", "4", "K4"))),
+                        TableTestUtils.createTable("name", 2, "C", "K", "3", "K3", "9", "K4"),
+                        TableTestUtils.createTable("name", 2, "C", "K", "9", "K3", "4", "K4"))),
                 Arrays.asList((List<Object>) null),
                 100);
-        this.tableVerifier.investigate(investigation, this.temporaryFolder.newFile().toPath());
+        this.tableVerifier.investigate(investigation);
         Assert.assertEquals(
                 "<body>\n" +
                         "<div class=\"metadata\">\n" +
@@ -350,14 +346,14 @@ public class InvestigationTest
         Investigation investigation = new ComplexInvestigation(Arrays.asList(
                 new SimpleInvestigationLevel(
                         "Initial Query",
-                        TableTestUtils.createTable(2,
+                        TableTestUtils.createTable("name", 2,
                                 "C", "I",
                                 "1", 1,
                                 "2", 2,
                                 "3", 3,
                                 "4", 4,
                                 "6", 6),
-                        TableTestUtils.createTable(2,
+                        TableTestUtils.createTable("name", 2,
                                 "C", "I",
                                 "9", 2,
                                 "3", 3,
@@ -366,15 +362,15 @@ public class InvestigationTest
                                 "6", 6)),
                 new SimpleInvestigationLevel(
                         "First Drilldown",
-                        TableTestUtils.createTable(1, "K", "K1"),
-                        TableTestUtils.createTable(1, "K", "K1"))),
+                        TableTestUtils.createTable("name", 1, "K", "K1"),
+                        TableTestUtils.createTable("name", 1, "K", "K1"))),
                 Arrays.asList(
                         null,
-                        Arrays.<Object>asList(1, 2, 9, 4, 5)),
+                        Arrays.asList(1, 2, 9, 4, 5)),
                 100);
         try
         {
-            this.tableVerifier.investigate(investigation, this.temporaryFolder.newFile().toPath());
+            this.tableVerifier.investigate(investigation);
         }
         catch (AssertionError e)
         {
@@ -455,19 +451,19 @@ public class InvestigationTest
         Investigation investigation = new ComplexInvestigation(Arrays.asList(
                 new SimpleInvestigationLevel(
                         "Initial Query",
-                        TableTestUtils.createTable(2, "C", "K", "1", "K1", "2", "K2", "3", "K3"),
-                        TableTestUtils.createTable(2, "C", "K", "9", "K1", "9", "K2", "9", "K3")),
+                        TableTestUtils.createTable("name", 2, "C", "K", "1", "K1", "2", "K2", "3", "K3"),
+                        TableTestUtils.createTable("name", 2, "C", "K", "9", "K1", "9", "K2", "9", "K3")),
                 new SimpleInvestigationLevel(
                         "First Drilldown",
-                        TableTestUtils.createTable(1, "K", "K1"),
-                        TableTestUtils.createTable(1, "K", "K1"))),
+                        TableTestUtils.createTable("name", 1, "K", "K1"),
+                        TableTestUtils.createTable("name", 1, "K", "K1"))),
                 Arrays.asList(
                         null,
-                        Arrays.<Object>asList("K1", "K2")),
+                        Arrays.asList("K1", "K2")),
                 2);
         try
         {
-            this.tableVerifier.investigate(investigation, this.temporaryFolder.newFile().toPath());
+            this.tableVerifier.investigate(investigation);
         }
         catch (AssertionError e)
         {
@@ -530,23 +526,23 @@ public class InvestigationTest
         Investigation investigation = new ComplexInvestigation(Arrays.asList(
                 new SimpleInvestigationLevel(
                         "Initial Query",
-                        TableTestUtils.createTable(1, "K", "K1"),
-                        TableTestUtils.createTable(1, "K", "K9")),
+                        TableTestUtils.createTable("name", 1, "K", "K1"),
+                        TableTestUtils.createTable("name", 1, "K", "K9")),
                 new SimpleInvestigationLevel(
                         "First Drilldown",
-                        TableTestUtils.createTable(1, "K", "K1"),
-                        TableTestUtils.createTable(1, "K", "K1")),
+                        TableTestUtils.createTable("name", 1, "K", "K1"),
+                        TableTestUtils.createTable("name", 1, "K", "K1")),
                 new SimpleInvestigationLevel(
                         "Second Drilldown",
-                        TableTestUtils.createTable(1, "K", "K1"),
-                        TableTestUtils.createTable(1, "K", "K9"))),
+                        TableTestUtils.createTable("name", 1, "K", "K1"),
+                        TableTestUtils.createTable("name", 1, "K", "K9"))),
                 Arrays.asList(
                         null,
-                        Arrays.<Object>asList("K1", "K9")),
+                        Arrays.asList("K1", "K9")),
                 100);
         try
         {
-            this.tableVerifier.investigate(investigation, this.temporaryFolder.newFile().toPath());
+            this.tableVerifier.investigate(investigation);
         }
         catch (AssertionError e)
         {

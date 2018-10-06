@@ -130,7 +130,7 @@ public class ResultTable implements FormattableTable
         while (dataRowIndex < results.size() && rowsAppended < htmlOptions.getHtmlRowLimit())
         {
             List<ResultCell> row = results.get(dataRowIndex);
-            if (htmlOptions.isHideMatchedRows())
+            if (htmlOptions.isHideMatchedRowsFor(tableName))
             {
                 int failedCount = Iterate.count(row, ResultCell.IS_FAILED_CELL);
                 int passedCount = Iterate.count(row, ResultCell.IS_PASSED_CELL);
@@ -161,7 +161,7 @@ public class ResultTable implements FormattableTable
             }
             dataRowIndex++;
         }
-        if (htmlOptions.isHideMatchedRows() && matchedRows > 0)
+        if (htmlOptions.isHideMatchedRowsFor(tableName) && matchedRows > 0)
         {
             HtmlFormatterUtils.appendMultiMatchedRow(table, this.getHeaders().size(), matchedRows);
         }

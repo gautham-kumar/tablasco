@@ -36,7 +36,7 @@ import java.util.Map;
 
 public class MultiTableVerifierTest
 {
-    private static final CellComparator CELL_COMPARATOR = new ToleranceCellComparator(new CellFormatter(1.0, false));
+    private static final CellComparator CELL_COMPARATOR = new ToleranceCellComparator(new CellFormatter(1.0, false, "Expected", "Actual"));
 
     @Rule
     public final TestName testName = new TestName();
@@ -98,16 +98,16 @@ public class MultiTableVerifierTest
     public void noExpectedColumns()
     {
         this.verifyTables(
-                Maps.fixedSize.of("table", TableTestUtils.createTable(1, "Col")),
-                Maps.fixedSize.of("table", TableTestUtils.createTable(0)));
+                Maps.fixedSize.of("table", TableTestUtils.createTable("name", 1, "Col")),
+                Maps.fixedSize.of("table", TableTestUtils.createTable("name", 0)));
     }
 
     @Test(expected = IllegalStateException.class)
     public void noActualColumns()
     {
         this.verifyTables(
-                Maps.fixedSize.of("table", TableTestUtils.createTable(0)),
-                Maps.fixedSize.of("table", TableTestUtils.createTable(1, "Col")));
+                Maps.fixedSize.of("table", TableTestUtils.createTable("name", 0)),
+                Maps.fixedSize.of("table", TableTestUtils.createTable("name", 1, "Col")));
     }
 
     private Map<String, ResultTable> verifyTables(Map<String, ComparableTable> actualResults, Map<String, ComparableTable> expectedResults)

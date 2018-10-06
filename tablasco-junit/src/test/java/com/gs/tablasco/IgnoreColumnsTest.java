@@ -32,10 +32,10 @@ public class IgnoreColumnsTest
     @Test
     public void ignoreColumns() throws IOException
     {
-        ComparableTable table1 = TableTestUtils.createTable(4, "Col 1", "Col 2", "Col 3", "Col 4", "A1", "A2", "A3", "A4");
-        ComparableTable table2 = TableTestUtils.createTable(4, "Col 1", "Col 2", "Col 3", "Col 4", "A1", "XX", "A3", "XX");
+        VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 4, "Col 1", "Col 2", "Col 3", "Col 4", "A1", "A2", "A3", "A4");
+        VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 4, "Col 1", "Col 2", "Col 3", "Col 4", "A1", "XX", "A3", "XX");
 
-        this.tableVerifier.withIgnoreColumns("Col 2", "Col 4").compare(table1, table2);
+        this.tableVerifier.withIgnoreColumns("Col 2", "Col 4").verify(table1, table2);
 
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +

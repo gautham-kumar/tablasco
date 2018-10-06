@@ -180,18 +180,22 @@ public abstract class ResultCell implements Serializable
     {
         private final Object rhs;
         private final Object lhs;
+        private final String lhsLabel;
+        private final String rhsLabel;
 
         private FailedCell(CellFormatter formatter, Object rhs, Object lhs)
         {
             super(formatter);
             this.rhs = rhs;
             this.lhs = lhs;
+            this.lhsLabel = formatter.getLhsLabel();
+            this.rhsLabel = formatter.getRhsLabel();
         }
 
         @Override
         public String toString()
         {
-            return this.getClass().getSimpleName() + "{rhs=" + this.formatter.format(this.rhs) + ", lhs=" + this.formatter.format(this.lhs) + '}';
+            return this.getClass().getSimpleName() + "{" + this.rhsLabel + "=" + this.formatter.format(this.rhs) + ", " + this.lhsLabel + "=" + this.formatter.format(this.lhs) + '}';
         }
 
         @Override
@@ -216,20 +220,20 @@ public abstract class ResultCell implements Serializable
                 String variance = this.formatter.format(VarianceCellComparator.getVariance(this.rhs, this.lhs));
                 return ResultCell.createCell(document, this.getCssClass(), isHeaderRow, true,
                         document.createTextNode(this.formatter.format(this.lhs)),
-                        ResultCell.createNodeWithText(document, "p", "Lhs"),
+                        ResultCell.createNodeWithText(document, "p", this.lhsLabel),
                         document.createElement("hr"),
                         document.createTextNode(this.formatter.format(this.rhs)),
-                        ResultCell.createNodeWithText(document, "p", "Rhs"),
+                        ResultCell.createNodeWithText(document, "p", this.rhsLabel),
                         document.createElement("hr"),
                         document.createTextNode(difference + " / " + variance + '%'),
                         ResultCell.createNodeWithText(document, "p", "Difference / Variance"));
             }
             return ResultCell.createCell(document, this.getCssClass(), isHeaderRow, false,
                     document.createTextNode(this.formatter.format(this.lhs)),
-                    ResultCell.createNodeWithText(document, "p", "Lhs"),
+                    ResultCell.createNodeWithText(document, "p", this.lhsLabel),
                     document.createElement("hr"),
                     document.createTextNode(this.formatter.format(this.rhs)),
-                    ResultCell.createNodeWithText(document, "p", "Rhs"));
+                    ResultCell.createNodeWithText(document, "p", this.rhsLabel));
         }
 
         @Override
@@ -241,7 +245,7 @@ public abstract class ResultCell implements Serializable
         @Override
         public Object getSummary()
         {
-            return Maps.fixedSize.of("Lhs", this.formatter.format(this.lhs), "Rhs", this.formatter.format(this.rhs));
+            return Maps.fixedSize.of(this.lhsLabel, this.formatter.format(this.lhs), this.rhsLabel, this.formatter.format(this.rhs));
         }
     }
 

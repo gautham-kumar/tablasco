@@ -33,9 +33,9 @@ public class HtmlFormattingTest
     @Test
     public void nonNumericBreak() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "A2", "B1", "B2");
-        final ComparableTable table2 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "A9", "B1", "B9");
-        TableTestUtils.assertAssertionError(() -> tableVerifier.compare(table1, table2));
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "A2", "B1", "B2");
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "A9", "B1", "B9");
+        TableTestUtils.assertAssertionError(() -> tableVerifier.verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -60,9 +60,9 @@ public class HtmlFormattingTest
     @Test
     public void numericBreak() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A", 10.123);
-        final ComparableTable table2 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A", 20.456);
-        TableTestUtils.assertAssertionError(() -> tableVerifier.withTolerance(0.01d).compare(table1, table2));
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A", 10.123);
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A", 20.456);
+        TableTestUtils.assertAssertionError(() -> tableVerifier.withTolerance(0.01d).verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -82,12 +82,9 @@ public class HtmlFormattingTest
     @Test
     public void nonNumericActualNumericExpectedBreak() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A", 390.0);
-        final ComparableTable table2 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A", "A2");
-        TableTestUtils.assertAssertionError(() ->
-        {
-            tableVerifier.withVarianceThreshold(5.0d).compare(table1, table2);
-        });
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A", 390.0);
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A", "A2");
+        TableTestUtils.assertAssertionError(() -> tableVerifier.withVarianceThreshold(5.0d).verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -106,9 +103,9 @@ public class HtmlFormattingTest
     @Test
     public void numericActualNonNumericExpectedBreak() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A", "A1");
-        final ComparableTable table2 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A", 48.0);
-        TableTestUtils.assertAssertionError(() -> tableVerifier.withTolerance(0.1d).compare(table1, table2));
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A", "A1");
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A", 48.0);
+        TableTestUtils.assertAssertionError(() -> tableVerifier.withTolerance(0.1d).verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -127,9 +124,9 @@ public class HtmlFormattingTest
     @Test
     public void outOfOrderColumnPassedCellNonNumeric() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "A2");
-        final ComparableTable table2 = TableTestUtils.createTable(2, "Col 2", "Col 1", "A2", "A1");
-        TableTestUtils.assertAssertionError(() -> tableVerifier.compare(table1, table2));
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "A2");
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 2, "Col 2", "Col 1", "A2", "A1");
+        TableTestUtils.assertAssertionError(() -> tableVerifier.verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -148,9 +145,9 @@ public class HtmlFormattingTest
     @Test
     public void outOfOrderColumnFailedCellNonNumeric() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "A2");
-        final ComparableTable table2 = TableTestUtils.createTable(2, "Col 2", "Col 1", "A3", "A1");
-        TableTestUtils.assertAssertionError(() -> tableVerifier.compare(table1, table2));
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "A2");
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 2, "Col 2", "Col 1", "A3", "A1");
+        TableTestUtils.assertAssertionError(() -> tableVerifier.verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -171,9 +168,9 @@ public class HtmlFormattingTest
     @Test
     public void outOfOrderColumnPassedCellNumeric() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(2, "Col 1", "Col 2", 30.78, 25);
-        final ComparableTable table2 = TableTestUtils.createTable(2, "Col 2", "Col 1", 25, 30.78);
-        TableTestUtils.assertAssertionError(() -> tableVerifier.withTolerance(0.01d).compare(table1, table2));
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", 30.78, 25);
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 2, "Col 2", "Col 1", 25, 30.78);
+        TableTestUtils.assertAssertionError(() -> tableVerifier.withTolerance(0.01d).verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -192,9 +189,9 @@ public class HtmlFormattingTest
     @Test
     public void outOfOrderColumnFailedCellNumeric() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(2, "Col 1", "Col 2", 30.78, 25);
-        final ComparableTable table2 = TableTestUtils.createTable(2, "Col 2", "Col 1", 25.3, 30.78);
-        TableTestUtils.assertAssertionError(() -> tableVerifier.withTolerance(0.01d).compare(table1, table2));
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", 30.78, 25);
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 2, "Col 2", "Col 1", 25.3, 30.78);
+        TableTestUtils.assertAssertionError(() -> tableVerifier.withTolerance(0.01d).verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -215,9 +212,9 @@ public class HtmlFormattingTest
     @Test
     public void missingSurplusColumnsNonNumeric() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "A2");
-        final ComparableTable table2 = TableTestUtils.createTable(2, "Col 4", "Col 1", "A2", "A1");
-        TableTestUtils.assertAssertionError(() -> tableVerifier.compare(table1, table2));
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "A2");
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 2, "Col 4", "Col 1", "A2", "A1");
+        TableTestUtils.assertAssertionError(() -> tableVerifier.verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -241,9 +238,9 @@ public class HtmlFormattingTest
     @Test
     public void missingSurplusColumnsNumeric() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(2, "Col 1", "Col 2", 30.78, 25);
-        final ComparableTable table2 = TableTestUtils.createTable(2, "Col 4", "Col 1", 26, 30.78);
-        TableTestUtils.assertAssertionError(() -> tableVerifier.withTolerance(0.01d).compare(table1, table2));
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", 30.78, 25);
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 2, "Col 4", "Col 1", 26, 30.78);
+        TableTestUtils.assertAssertionError(() -> tableVerifier.withTolerance(0.01d).verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -267,9 +264,9 @@ public class HtmlFormattingTest
     @Test
     public void missingSurplusRowsNonNumeric() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "A2");
-        final ComparableTable table2 = TableTestUtils.createTable(2, "Col 1", "Col 2", "C1", "C2");
-        TableTestUtils.assertAssertionError(() -> tableVerifier.compare(table1, table2));
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "A2");
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "C1", "C2");
+        TableTestUtils.assertAssertionError(() -> tableVerifier.verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -295,9 +292,9 @@ public class HtmlFormattingTest
     @Test
     public void missingSurplusRowsNumeric() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(2, "Col 1", "Col 2", 345.66, 13.0, 56.44, 45.01);
-        final ComparableTable table2 = TableTestUtils.createTable(2, "Col 1", "Col 2", 345.63, 12.8, 56.65, 45.31);
-        TableTestUtils.assertAssertionError(() -> tableVerifier.withTolerance(0.1d).compare(table1, table2));
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", 345.66, 13.0, 56.44, 45.01);
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", 345.63, 12.8, 56.65, 45.31);
+        TableTestUtils.assertAssertionError(() -> tableVerifier.withTolerance(0.1d).verify(table1, table2));
         Assert.assertEquals(
                 "<table border=\"1\" cellspacing=\"0\">\n" +
                         "<tr>\n" +
@@ -329,8 +326,8 @@ public class HtmlFormattingTest
     @Test
     public void assertionSummaryWithSuccess() throws IOException
     {
-        ComparableTable table = TableTestUtils.createTable(1, "Col 1", "A1");
-        this.tableVerifier.withAssertionSummary(true).compare(table, table);
+        VerifiableTable table = TableTestUtils.createVerifiableTable("name", 1, "Col 1", "A1");
+        this.tableVerifier.withAssertionSummary(true).verify(table, table);
         Assert.assertEquals(
                 "<body>\n" +
                         "<div class=\"metadata\"/>\n" +
@@ -360,9 +357,9 @@ public class HtmlFormattingTest
     @Test
     public void assertionSummaryWithFailure() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "A2", "B1", "B2");
-        final ComparableTable table2 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "A9", "B1", "B9");
-        TableTestUtils.assertAssertionError(() -> tableVerifier.withAssertionSummary(true).compare(table1, table2));
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "A2", "B1", "B2");
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "A9", "B1", "B9");
+        TableTestUtils.assertAssertionError(() -> tableVerifier.withAssertionSummary(true).verify(table1, table2));
         Assert.assertEquals(
                 "<body>\n" +
                         "<div class=\"metadata\"/>\n" +
@@ -402,10 +399,10 @@ public class HtmlFormattingTest
     @Test
     public void assertionSummaryWithMultipleVerify() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(1, "Col 1", "A1");
-        final ComparableTable table2 = TableTestUtils.createTable(1, "Col 1", "A2");
-        this.tableVerifier.withAssertionSummary(true).compare(table1, table1);
-        TableTestUtils.assertAssertionError(() -> tableVerifier.withAssertionSummary(true).compare(table1, table2));
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name1", 1, "Col 1", "A1");
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name2", 1, "Col 1", "A2");
+        this.tableVerifier.withAssertionSummary(true).verify(table1, table1);
+        TableTestUtils.assertAssertionError(() -> tableVerifier.withAssertionSummary(true).verify(new DefaultVerifiableTableAdapter("name2", table1), table2));
         Assert.assertEquals(
                 "<body>\n" +
                         "<div class=\"metadata\"/>\n" +
@@ -459,7 +456,7 @@ public class HtmlFormattingTest
     @Test
     public void assertionSummaryWithMissingSurplusTables() throws IOException
     {
-        final ComparableTable table = TableTestUtils.createTable(1, "Col 1", "A1");
+        final VerifiableTable table = TableTestUtils.createVerifiableTable("name", 1, "Col 1", "A1");
         DefaultVerifiableTableAdapter adapter = new DefaultVerifiableTableAdapter(table);
         TableTestUtils.assertAssertionError(() -> tableVerifier.withAssertionSummary(true).verify(
                 Maps.fixedSize.of("name", adapter, "name2", adapter), Maps.fixedSize.of("name", adapter, "name3", adapter)));
@@ -518,12 +515,12 @@ public class HtmlFormattingTest
     @Test
     public void assertionSummaryWithHideMatchedRows() throws IOException
     {
-        final ComparableTable table1 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "A2", "B1", "B2", "C1", "C2");
-        final ComparableTable table2 = TableTestUtils.createTable(2, "Col 1", "Col 2", "A1", "A2", "B1", "B2", "C1", "C9");
+        final VerifiableTable table1 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "A2", "B1", "B2", "C1", "C2");
+        final VerifiableTable table2 = TableTestUtils.createVerifiableTable("name", 2, "Col 1", "Col 2", "A1", "A2", "B1", "B2", "C1", "C9");
         TableTestUtils.assertAssertionError(() -> tableVerifier
                 .withAssertionSummary(true)
                 .withHideMatchedRows(true)
-                .compare(table1, table2));
+                .verify(table1, table2));
         Assert.assertEquals(
                 "<body>\n" +
                         "<div class=\"metadata\"/>\n" +

@@ -51,7 +51,7 @@ public class RebaseAndVerifyTest
                 public Object getValueAt(int rowIndex, int columnIndex)
                 {
                     Object valueAt = super.getValueAt(rowIndex, columnIndex);
-                    return valueAt == ADAPT ? ADAPT.toUpperCase() : valueAt;
+                    return ADAPT.equals(valueAt) ? ADAPT.toUpperCase() : valueAt;
                 }
             };
         }
@@ -118,7 +118,7 @@ public class RebaseAndVerifyTest
     @Test
     public void specialNumberHandling() throws Exception
     {
-        VerifiableTable tableForRebase = new DefaultVerifiableTableAdapter(TableTestUtils.createTable(6,
+        VerifiableTable tableForRebase = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 6,
                 "Double Inf", "Double Neg Inf", "Double NaN", "Float Inf", "Float Neg Inf", "Float NaN",
                 Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NaN,
                 Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NaN));
@@ -131,7 +131,7 @@ public class RebaseAndVerifyTest
     @Test
     public void withActualAdapter() throws Exception
     {
-        VerifiableTable table = new DefaultVerifiableTableAdapter(TableTestUtils.createTable(2, "Key", "Val", "1", ADAPT));
+        VerifiableTable table = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2, "Key", "Val", "1", ADAPT));
         this.rebase(Maps.fixedSize.of("tableName", table));
         this.verify(Maps.fixedSize.of("tableName", table), 1.0d);
         this.verifyHtmlCells("1", "ADAPT");
@@ -198,7 +198,7 @@ public class RebaseAndVerifyTest
     public void withExcludeSvnHeadersInExpectedResults() throws Exception
     {
         this.baselineHeaders = null;
-        VerifiableTable table = new DefaultVerifiableTableAdapter(TableTestUtils.createTable(2, "Key", "Val", "1", "A"));
+        VerifiableTable table = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2, "Key", "Val", "1", "A"));
         this.rebase(Maps.fixedSize.of("tableName", table));
         try (BufferedReader reader = new BufferedReader(new FileReader(this.expectedFile)))
         {
@@ -212,7 +212,7 @@ public class RebaseAndVerifyTest
     @Test
     public void svnHeadersAreIgnoredByReader() throws Exception
     {
-        VerifiableTable table = new DefaultVerifiableTableAdapter(TableTestUtils.createTable(2, "Key", "Val", "1", "A"));
+        VerifiableTable table = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2, "Key", "Val", "1", "A"));
         this.rebase(Maps.fixedSize.of("tableName", table));
         this.baselineHeaders = null;
         this.verify(Maps.fixedSize.of("tableName", table), 1.0d);
@@ -234,14 +234,7 @@ public class RebaseAndVerifyTest
 
     private void finishRebase(final TableVerifier rebaseWatcher)
     {
-        TableTestUtils.assertAssertionError(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                rebaseWatcher.succeeded(description.get());
-            }
-        });
+        TableTestUtils.assertAssertionError(() -> rebaseWatcher.succeeded(description.get()));
         this.expectedFile = rebaseWatcher.getExpectedFile();
     }
 
@@ -286,14 +279,7 @@ public class RebaseAndVerifyTest
 
     private static VerifiableTable createTypedTable(Object... values)
     {
-        MutableList<Object> headers = ArrayIterate.collect(values, new Function<Object, Object>()
-        {
-            @Override
-            public Object valueOf(Object object)
-            {
-                return object.getClass().getSimpleName();
-            }
-        });
+        MutableList<Object> headers = ArrayIterate.collect(values, object -> object.getClass().getSimpleName());
         return new ListVerifiableTable("Test", headers, Arrays.asList(Arrays.<Object>asList(values)));
     }
 }

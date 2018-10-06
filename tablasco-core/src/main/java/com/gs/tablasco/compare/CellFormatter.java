@@ -20,6 +20,8 @@ import org.eclipse.collections.api.block.function.Function;
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
@@ -30,10 +32,14 @@ public class CellFormatter implements Function<Object, String>
     private final NumberFormat numberFormat;
     private final double tolerance;
     private final StringBuilder builder;
+    private final String lhsLabel;
+    private final String rhsLabel;
 
-    public CellFormatter(double tolerance, boolean isGroupingUsed)
+    public CellFormatter(double tolerance, boolean isGroupingUsed, String lhsLabel, String rhsLabel)
     {
         this.tolerance = tolerance;
+        this.lhsLabel = lhsLabel;
+        this.rhsLabel = rhsLabel;
         this.numberFormat = createNumberFormat(tolerance, isGroupingUsed);
         this.builder = new StringBuilder();
     }
@@ -71,11 +77,15 @@ public class CellFormatter implements Function<Object, String>
         }
         if (value instanceof Date)
         {
-            return DATE_TIME_FORMATTER.format(Date.class.cast(value).toInstant());
+            return this.format(Date.class.cast(value).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
         }
         if (value instanceof LocalDate)
         {
-            return DATE_TIME_FORMATTER.format(LocalDate.class.cast(value));
+            return this.format(LocalDate.class.cast(value).atStartOfDay());
+        }
+        if (value instanceof LocalDateTime)
+        {
+            return DATE_TIME_FORMATTER.format(LocalDateTime.class.cast(value));
         }
         if (value == null)
         {
@@ -154,5 +164,15 @@ public class CellFormatter implements Function<Object, String>
     public static boolean isNumber(Object value)
     {
         return value instanceof Number;
+    }
+
+    public String getLhsLabel()
+    {
+        return this.lhsLabel;
+    }
+
+    public String getRhsLabel()
+    {
+        return this.rhsLabel;
     }
 }
