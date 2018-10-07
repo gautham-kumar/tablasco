@@ -365,7 +365,7 @@ public class TableComparator<T extends TableComparator<T>>
         ComparableTable adaptedLhsTable = skipLhsAdaptation ? lhsTable : this.lhsAdapter.valueOf(lhsTable);
         ComparableTable adaptedRhsTable = skipRhsAdaptation ? rhsTable : this.rhsAdapter.valueOf(rhsTable);
         FormattableTable resultTable = getVerifiedResults(adaptedLhsTable, adaptedRhsTable);
-        return new ComparisonResult(getComparisonName(lhsTable, rhsTable), resultTable, newHtmlFormatter());
+        return new ComparisonResult(getComparisonName(lhsTable, rhsTable), resultTable, this.getHtmlOptions(Sets.fixedSize.of()));
     }
 
     /**
@@ -397,11 +397,6 @@ public class TableComparator<T extends TableComparator<T>>
         ResultTable resultTable = newSingleTableComparator().compare(adaptedRhsTable, adaptedLhsTable);
 
         return this.summarisedResults ? new SummaryResultTable(resultTable) : resultTable;
-    }
-
-    final HtmlFormatter newHtmlFormatter()
-    {
-        return new HtmlFormatter(this.getHtmlOptions(Sets.fixedSize.of()));
     }
 
     protected HtmlOptions getHtmlOptions(Set<String> tablesToAlwaysShowMatchedRowsFor)

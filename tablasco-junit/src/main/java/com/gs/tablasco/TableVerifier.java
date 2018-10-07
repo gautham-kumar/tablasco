@@ -654,7 +654,7 @@ public final class TableVerifier extends TableComparator<TableVerifier> implemen
 
     private void verifyTables(List<Pair<VerifiableTable, VerifiableTable>> expectedAndActualTables, Metadata metadata)
     {
-        ComparisonResult comparisonResult = ComparisonResult.newEmpty(this.newHtmlFormatter());
+        ComparisonResult comparisonResult = ComparisonResult.newEmpty(this.getHtmlOptions(Sets.fixedSize.of()));
 
         for (Pair<VerifiableTable, VerifiableTable> expectedAndActualTable : expectedAndActualTables)
         {
@@ -662,7 +662,7 @@ public final class TableVerifier extends TableComparator<TableVerifier> implemen
             VerifiableTable actual = ignoreTable(expectedAndActualTable.getTwo()) ? null : expectedAndActualTable.getTwo();
             if (expected != null || actual != null)
             {
-                comparisonResult = comparisonResult.combine(this.compare(expected, actual, skipAdaptation(expected), skipAdaptation(actual)));
+                comparisonResult = comparisonResult.combine(this.compare(expected, actual, skipAdaptation(expected), skipAdaptation(actual)), false);
             }
         }
 

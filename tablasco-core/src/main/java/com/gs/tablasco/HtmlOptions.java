@@ -16,9 +16,10 @@
 
 package com.gs.tablasco;
 
+import java.io.Serializable;
 import java.util.Set;
 
-public class HtmlOptions
+public class HtmlOptions implements Serializable
 {
     private final boolean displayAssertionSummary;
     private final int htmlRowLimit;
