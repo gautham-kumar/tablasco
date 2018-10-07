@@ -1,3 +1,4 @@
 language: java
 sudo: false
-script: mvn clean install
+install: true
+script: mvn clean package -Dgpg.skip=true -Dmaven.javadoc.skip=true
