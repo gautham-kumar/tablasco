@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/gautham-kumar/tablasco.svg?branch=extract_comparator)](https://travis-ci.com/gautham-kumar/tablasco)
+
 # Tablasco
 
 ## What is it?
