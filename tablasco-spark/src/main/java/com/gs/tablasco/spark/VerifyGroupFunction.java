@@ -1,17 +1,15 @@
 package com.gs.tablasco.spark;
 
-import com.google.common.base.Optional;
-import com.gs.tablasco.VerifiableTable;
+import com.gs.tablasco.ComparableTable;
+import com.gs.tablasco.ComparisonResult;
+import com.gs.tablasco.TableComparator;
 import com.gs.tablasco.adapters.TableAdapters;
-import com.gs.tablasco.verify.ColumnComparators;
-import com.gs.tablasco.verify.DefaultVerifiableTableAdapter;
-import com.gs.tablasco.verify.KeyedVerifiableTable;
-import com.gs.tablasco.verify.ListVerifiableTable;
-import com.gs.tablasco.verify.ResultTable;
-import com.gs.tablasco.verify.SummaryResultTable;
-import com.gs.tablasco.verify.indexmap.IndexMapTableVerifier;
+import com.gs.tablasco.compare.ColumnComparators;
+import com.gs.tablasco.compare.DefaultComparableTableAdapter;
+import com.gs.tablasco.compare.KeyedComparableTable;
+import com.gs.tablasco.compare.ListComparableTable;
+import org.apache.spark.api.java.Optional;
 import org.apache.spark.api.java.function.Function;
-import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.impl.list.mutable.FastList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +17,10 @@ import scala.Tuple2;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-public class VerifyGroupFunction implements Function<Tuple2<Integer, Tuple2<Optional<Iterable<List<Object>>>, Optional<Iterable<List<Object>>>>>, SummaryResultTable>
+public class VerifyGroupFunction implements Function<Tuple2<Integer, Tuple2<Optional<Iterable<List<Object>>>, Optional<Iterable<List<Object>>>>>, ComparisonResult>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(VerifyGroupFunction.class);
 
@@ -29,65 +28,83 @@ public class VerifyGroupFunction implements Function<Tuple2<Integer, Tuple2<Opti
     private final List<String> actualHeaders;
     private final List<String> expectedHeaders;
     private final boolean ignoreSurplusColumns;
-    private final ColumnComparators columnComparators;
     private final Set<String> columnsToIgnore;
+    private final Optional<Double> tolerance;
+    private final Map<String, Double> columnSpecificTolerance;
 
-    VerifyGroupFunction(Set<String> groupKeyColumns, List<String> actualHeaders, List<String> expectedHeaders, boolean ignoreSurplusColumns, ColumnComparators columnComparators, Set<String> columnsToIgnore)
+    VerifyGroupFunction(Set<String> groupKeyColumns, List<String> actualHeaders, List<String> expectedHeaders,
+                        boolean ignoreSurplusColumns, Set<String> columnsToIgnore, Optional<Double> tolerance, Map<String, Double> columnSpecificTolerance)
     {
         this.groupKeyColumns = groupKeyColumns;
         this.actualHeaders = actualHeaders;
         this.expectedHeaders = expectedHeaders;
         this.ignoreSurplusColumns = ignoreSurplusColumns;
-        this.columnComparators = columnComparators;
+        this.tolerance = tolerance;
         this.columnsToIgnore = columnsToIgnore;
+        this.columnSpecificTolerance = columnSpecificTolerance;
     }
 
     @Override
-    public SummaryResultTable call(Tuple2<Integer, Tuple2<Optional<Iterable<List<Object>>>, Optional<Iterable<List<Object>>>>> v1)
+    public ComparisonResult call(Tuple2<Integer, Tuple2<Optional<Iterable<List<Object>>>, Optional<Iterable<List<Object>>>>> v1)
     {
         Integer shardNumber = v1._1();
+
         Optional<Iterable<List<Object>>> actualOptional = v1._2()._1();
         Optional<Iterable<List<Object>>> expectedOptional = v1._2()._2();
-        Iterable<List<Object>> actualRows = actualOptional.isPresent() ? actualOptional.get() : Collections.<List<Object>>emptyList();
-        Iterable<List<Object>> expectedRows = expectedOptional.isPresent() ? expectedOptional.get() : Collections.<List<Object>>emptyList();
-        VerifiableTable actualTable = getVerifiableTable(actualRows, this.actualHeaders);
-        VerifiableTable expectedTable = getVerifiableTable(expectedRows, this.expectedHeaders);
-        IndexMapTableVerifier singleSingleTableVerifier = new IndexMapTableVerifier(
-                this.columnComparators,
-                false,
-                IndexMapTableVerifier.DEFAULT_BEST_MATCH_THRESHOLD,
-                false,
-                false,
-                this.ignoreSurplusColumns,
-                false,
-                0);
-        ResultTable resultTable = singleSingleTableVerifier.verify(actualTable, expectedTable);
-        LOGGER.info("Verification of shard {} {}", shardNumber, resultTable.isSuccess() ? "PASSED" : "FAILED");
-        return new SummaryResultTable(resultTable);
+
+        Iterable<List<Object>> actualRows = actualOptional.isPresent() ? actualOptional.get() : Collections.emptyList();
+        Iterable<List<Object>> expectedRows = expectedOptional.isPresent() ? expectedOptional.get() : Collections.emptyList();
+
+        ComparableTable actualTable = this.getVerifiableTable(actualRows, this.actualHeaders);
+        ComparableTable expectedTable = this.getVerifiableTable(expectedRows, this.expectedHeaders);
+
+        ComparisonResult comparisonResult = this.constructTableComparator().compare(expectedTable, actualTable);
+
+        LOGGER.info("Verification of shard {} {}", shardNumber, comparisonResult.isSuccess() ? "PASSED" : "FAILED");
+
+        return comparisonResult;
     }
 
-    private VerifiableTable getVerifiableTable(Iterable<List<Object>> data, List<String> headers)
+    private TableComparator constructTableComparator()
     {
-        VerifiableTable verifiableTable = new ListVerifiableTable(headers, FastList.newList(data));
+        TableComparator comparator = new SparkTableComparator()
+                .withCompareRowOrder(false)
+                .withSummarisedResults(true)
+                .withoutPartialMatchTimeout();
+
+        if (this.ignoreSurplusColumns)
+        {
+            comparator = comparator.withIgnoreSurplusColumns();
+        }
+
+        if (this.tolerance.isPresent())
+        {
+            comparator = comparator.withTolerance(this.tolerance.get());
+        }
+
+        for (Map.Entry<String, Double> entry : this.columnSpecificTolerance.entrySet())
+        {
+            comparator = comparator.withTolerance(entry.getKey(), entry.getValue());
+        }
+
+        return comparator;
+    }
+
+    private ComparableTable getVerifiableTable(Iterable<List<Object>> data, List<String> headers)
+    {
+        ComparableTable verifiableTable = new ListComparableTable("Summary", headers, FastList.newList(data));
         if (this.columnsToIgnore != null)
         {
-            verifiableTable = TableAdapters.withColumns(verifiableTable, new Predicate<String>()
-            {
-                @Override
-                public boolean accept(String s)
-                {
-                    return !VerifyGroupFunction.this.columnsToIgnore.contains(s);
-                }
-            });
+            verifiableTable = TableAdapters.withColumns(verifiableTable, s -> !this.columnsToIgnore.contains(s));
         }
         return this.groupKeyColumns.isEmpty() ? verifiableTable : new GroupKeyedVerifiableTable(verifiableTable, this.groupKeyColumns);
     }
 
-    private static class GroupKeyedVerifiableTable extends DefaultVerifiableTableAdapter implements KeyedVerifiableTable
+    private static class GroupKeyedVerifiableTable extends DefaultComparableTableAdapter implements KeyedComparableTable
     {
         private final Set<String> groupKeyColumns;
 
-        GroupKeyedVerifiableTable(VerifiableTable delegate, Set<String> groupKeyColumns)
+        GroupKeyedVerifiableTable(ComparableTable delegate, Set<String> groupKeyColumns)
         {
             super(delegate);
             this.groupKeyColumns = groupKeyColumns;
@@ -100,4 +117,12 @@ public class VerifyGroupFunction implements Function<Tuple2<Integer, Tuple2<Opti
         }
     }
 
+    private static class SparkTableComparator extends TableComparator
+    {
+        @Override
+        protected ColumnComparators.Builder getColumnComparatorsBuilder()
+        {
+            return super.getColumnComparatorsBuilder().withLabels("Expected", "Actual");
+        }
+    }
 }

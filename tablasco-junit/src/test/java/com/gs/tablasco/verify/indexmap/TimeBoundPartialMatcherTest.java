@@ -16,6 +16,10 @@
 
 package com.gs.tablasco.verify.indexmap;
 
+import com.gs.tablasco.compare.indexmap.IndexMap;
+import com.gs.tablasco.compare.indexmap.PartialMatcher;
+import com.gs.tablasco.compare.indexmap.TimeBoundPartialMatcher;
+import com.gs.tablasco.compare.indexmap.UnmatchedIndexMap;
 import org.eclipse.collections.api.list.MutableList;
 import org.junit.Assert;
 import org.junit.Test;

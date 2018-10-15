@@ -92,7 +92,8 @@ public class MavenStyleDirectoryStrategy implements DirectoryStrategy
     }
 
     @Override
-    public File getOutputDirectory(Class<?> testClass) {
+    public File getOutputDirectory(Class<?> testClass)
+    {
         final URL sourceLocation = testClass.getProtectionDomain().getCodeSource().getLocation();
         if (sourceLocation.getProtocol().equalsIgnoreCase("file"))
         {

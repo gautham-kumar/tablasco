@@ -16,6 +16,7 @@
 
 package com.gs.tablasco.verify;
 
+import com.gs.tablasco.compare.ExceptionHtml;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.list.mutable.FastList;
 import org.eclipse.collections.impl.tuple.Tuples;

@@ -33,27 +33,28 @@ public class IgnoreTablesTest
     @Test
     public void ignoreTables() throws IOException
     {
-        VerifiableTable tableA = TableTestUtils.createTable(1, "Col 1", "A");
-        VerifiableTable tableX = TableTestUtils.createTable(1, "Col 1", "X");
+        VerifiableTable tableA = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 1, "Col 1", "A"));
+        VerifiableTable tableX = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 1, "Col 1", "X"));
+
         this.tableVerifier.withIgnoreTables("table1", "table3").verify(
                 Maps.fixedSize.of("table1", tableA, "table2", tableA, "table3", tableX),
                 Maps.fixedSize.of("table1", tableX, "table2", tableA, "table3", tableA));
 
         Assert.assertEquals(
                 "<body>\n" +
-                "<div class=\"metadata\"/>\n" +
-                "<h1>ignoreTables</h1>\n" +
-                "<div id=\"ignoreTables.table2\">\n" +
-                "<h2>table2</h2>\n" +
-                "<table border=\"1\" cellspacing=\"0\">\n" +
-                "<tr>\n" +
-                "<th class=\"pass\">Col 1</th>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"pass\">A</td>\n" +
-                "</tr>\n" +
-                "</table>\n" +
-                "</div>\n" +
-                "</body>", TableTestUtils.getHtml(this.tableVerifier, "body"));
+                        "<div class=\"metadata\"/>\n" +
+                        "<h1>ignoreTables</h1>\n" +
+                        "<div id=\"ignoreTables.table2\">\n" +
+                        "<h2>table2</h2>\n" +
+                        "<table border=\"1\" cellspacing=\"0\">\n" +
+                        "<tr>\n" +
+                        "<th class=\"pass\">Col 1</th>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"pass\">A</td>\n" +
+                        "</tr>\n" +
+                        "</table>\n" +
+                        "</div>\n" +
+                        "</body>", TableTestUtils.getHtml(this.tableVerifier, "body"));
     }
 }

@@ -17,7 +17,7 @@
 package com.gs.tablasco;
 
 import com.gs.tablasco.files.FilePerClassStrategy;
-import com.gs.tablasco.results.ExpectedResultsLoader;
+import com.gs.tablasco.results.TableDataLoader;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ExpectedResultsLoaderTest implements ExpectedResultsLoader
+public class ExpectedResultsLoaderTest implements TableDataLoader
 {
     @Rule
     public final TableVerifier verifier = new TableVerifier()

@@ -20,7 +20,9 @@ import com.gs.tablasco.investigation.Investigation;
 import com.gs.tablasco.investigation.InvestigationLevel;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import java.io.IOException;
 import java.util.List;
 
 public class InvestigationExampleTest
@@ -30,8 +32,11 @@ public class InvestigationExampleTest
             .withFilePerMethod()
             .withMavenDirectoryStrategy();
 
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Test(expected = AssertionError.class)
-    public void example()
+    public void example() throws IOException
     {
         Investigation investigation = new Investigation()
         {
@@ -40,21 +45,21 @@ public class InvestigationExampleTest
             {
                 return new InvestigationTest.SimpleInvestigationLevel(
                         "Group By Entity",
-                        TableTestUtils.createTable(3,
+                        TableTestUtils.createTable("name", 3,
                                 "Entity", "Value", "Key",
-                                "GSIB", 5,"GSIB",
-                                "GSJC", 4,"GSJC",
-                                "GSCO", 20,"GSCO",
-                                "GSIL", 15,"GSIL",
-                                "JANY", 12,"JANY"
+                                "GSIB", 5, "GSIB",
+                                "GSJC", 4, "GSJC",
+                                "GSCO", 20, "GSCO",
+                                "GSIL", 15, "GSIL",
+                                "JANY", 12, "JANY"
                         ),
-                        TableTestUtils.createTable(3,
+                        TableTestUtils.createTable("name", 3,
                                 "Entity", "Value", "Key",
-                                "GSIB", 5,"GSIB",
-                                "GSJC", 4,"GSJC",
-                                "GSCO", 22,"GSCO",
-                                "GSIL", 15,"GSIL",
-                                "JANY", 10,"JANY"
+                                "GSIB", 5, "GSIB",
+                                "GSJC", 4, "GSJC",
+                                "GSCO", 22, "GSCO",
+                                "GSIL", 15, "GSIL",
+                                "JANY", 10, "JANY"
                         ));
             }
 
@@ -65,12 +70,12 @@ public class InvestigationExampleTest
                 {
                     return new InvestigationTest.SimpleInvestigationLevel(
                             "Drilldown by Entity, Account",
-                            TableTestUtils.createTable(4,
+                            TableTestUtils.createTable("name", 4,
                                     "Entity", "Account", "Value", "Key",
                                     "GSCO", "7002", 20, "GSCO#7002",
                                     "JANY", "7003", 10, "JANY#7003",
                                     "JANY", "7004", 2, "JANY#7004"),
-                            TableTestUtils.createTable(4,
+                            TableTestUtils.createTable("name", 4,
                                     "Entity", "Account", "Value", "Key",
                                     "GSCO", "7001", 2, "GSCO#7001",
                                     "GSCO", "7002", 20, "GSCO#7002",
@@ -81,12 +86,12 @@ public class InvestigationExampleTest
                 {
                     return new InvestigationTest.SimpleInvestigationLevel(
                             "Drilldown by Entity, Account, Tran Ref",
-                            TableTestUtils.createTable(5,
+                            TableTestUtils.createTable("name", 5,
                                     "Entity", "Account", "Tran Ref", "Value", "Key",
                                     "JANY", "7003", "T2", 6, "GSCO#7001#T2",
                                     "JANY", "7003", "T3", 4, "GSCO#7001#T3"
                             ),
-                            TableTestUtils.createTable(5,
+                            TableTestUtils.createTable("name", 5,
                                     "Entity", "Account", "Tran Ref", "Value", "Key",
                                     "GSCO", "7001", "T1", 2, "GSCO#7001#T1",
                                     "JANY", "7003", "T2", 4, "GSCO#7001#T2",
@@ -102,6 +107,6 @@ public class InvestigationExampleTest
                 return 100;
             }
         };
-        this.tableVerifier.investigate(investigation);
+        this.tableVerifier.investigate(investigation, this.temporaryFolder.newFile().toPath());
     }
 }

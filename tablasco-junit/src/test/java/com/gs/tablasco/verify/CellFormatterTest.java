@@ -16,6 +16,7 @@
 
 package com.gs.tablasco.verify;
 
+import com.gs.tablasco.compare.CellFormatter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,7 +27,7 @@ public class CellFormatterTest
     @Test
     public void formatNumbers()
     {
-        CellFormatter formatter = new CellFormatter(0.01, true);
+        CellFormatter formatter = new CellFormatter(0.01, true, "Expected", "Actual");
         Assert.assertEquals("1", formatter.format(new Double(1.0d)));
         Assert.assertEquals("1.1", formatter.format(new Double(1.10d)));
         Assert.assertEquals("1.11", formatter.format(new Double(1.11d)));
@@ -50,7 +51,7 @@ public class CellFormatterTest
     @Test
     public void formatNegativeZero()
     {
-        CellFormatter formatter = new CellFormatter(0.0001, true);
+        CellFormatter formatter = new CellFormatter(0.0001, true, "Expected", "Actual");
         Assert.assertEquals("0", formatter.format(new Double(-0.0d)));
         Assert.assertEquals("0", formatter.format(Integer.valueOf(-0)));
         Assert.assertEquals("0", formatter.format(new Double(-0.00001)));
@@ -63,14 +64,14 @@ public class CellFormatterTest
     @Test
     public void formatDate()
     {
-        CellFormatter formatter = new CellFormatter(0, false);
+        CellFormatter formatter = new CellFormatter(0, false, "Expected", "Actual");
         Assert.assertEquals("2009-02-13 23:31:30", formatter.format(Timestamp.valueOf("2009-02-13 23:31:30.0001")));
     }
 
     @Test
     public void formatString()
     {
-        CellFormatter formatter = new CellFormatter(0, false);
+        CellFormatter formatter = new CellFormatter(0, false, "Expected", "Actual");
         Assert.assertEquals("", formatter.format(""));
         Assert.assertEquals("foo", formatter.format("foo"));
         Assert.assertEquals("foo", formatter.format(" foo "));

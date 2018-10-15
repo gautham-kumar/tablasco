@@ -16,14 +16,11 @@
 
 package com.gs.tablasco.verify;
 
+import com.gs.tablasco.compare.*;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,7 +29,7 @@ public class SummaryResultTableTest
     @Test
     public void isSerializable() throws IOException, ClassNotFoundException
     {
-        CellComparator cellComparator = new ToleranceCellComparator(new CellFormatter(1.0, false));
+        CellComparator cellComparator = new ToleranceCellComparator(new CellFormatter(1.0, false, "Expected", "Actual"));
         List<ResultCell> row = Arrays.asList(
                 ResultCell.createMatchedCell(cellComparator, "A", "A"),
                 ResultCell.createMatchedCell(cellComparator, "A", "B"),
@@ -56,7 +53,7 @@ public class SummaryResultTableTest
     @Test
     public void merge()
     {
-        CellComparator cellComparator = new ToleranceCellComparator(new CellFormatter(1.0, false));
+        CellComparator cellComparator = new ToleranceCellComparator(new CellFormatter(1.0, false, "Expected", "Actual"));
         SummaryResultTable table1 = new SummaryResultTable(new ResultTable(new boolean[2], Arrays.asList(
                 Arrays.asList(ResultCell.createMatchedCell(cellComparator, "Key", "Val")),
                 Arrays.asList(ResultCell.createMatchedCell(cellComparator, "A", "A")))));
@@ -77,5 +74,4 @@ public class SummaryResultTableTest
     {
         return table.getResultsByKey().toString();
     }
-
 }

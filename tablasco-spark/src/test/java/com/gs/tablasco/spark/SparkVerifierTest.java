@@ -20,11 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class SparkVerifierTest
 {
@@ -32,25 +28,25 @@ public class SparkVerifierTest
 
     private static final Schema AVSC = new Schema.Parser().parse(
             "{\"namespace\": \"verify.avro\",\n" +
-            " \"type\": \"record\",\n" +
-            " \"name\": \"Row\",\n" +
-            " \"fields\": [\n" +
-            "     {\"name\": \"k1\", \"type\": \"int\"},\n" +
-            "     {\"name\": \"v1\", \"type\": \"string\"},\n" +
-            "     {\"name\": \"k2\", \"type\": \"int\"},\n" +
-            "     {\"name\": \"v2\", \"type\": \"double\"}\n" +
-            " ]\n" +
-            '}');
+                    " \"type\": \"record\",\n" +
+                    " \"name\": \"Row\",\n" +
+                    " \"fields\": [\n" +
+                    "     {\"name\": \"k1\", \"type\": \"int\"},\n" +
+                    "     {\"name\": \"v1\", \"type\": \"string\"},\n" +
+                    "     {\"name\": \"k2\", \"type\": \"int\"},\n" +
+                    "     {\"name\": \"v2\", \"type\": \"double\"}\n" +
+                    " ]\n" +
+                    '}');
     private static final Schema AVSC_MISSING_COL = new Schema.Parser().parse(
             "{\"namespace\": \"verify.avro\",\n" +
-            " \"type\": \"record\",\n" +
-            " \"name\": \"Row\",\n" +
-            " \"fields\": [\n" +
-            "     {\"name\": \"k1\", \"type\": \"int\"},\n" +
-            "     {\"name\": \"v1\", \"type\": \"string\"},\n" +
-            "     {\"name\": \"k2\", \"type\": \"int\"}\n" +
-            " ]\n" +
-            '}');
+                    " \"type\": \"record\",\n" +
+                    " \"name\": \"Row\",\n" +
+                    " \"fields\": [\n" +
+                    "     {\"name\": \"k1\", \"type\": \"int\"},\n" +
+                    "     {\"name\": \"v1\", \"type\": \"string\"},\n" +
+                    "     {\"name\": \"k2\", \"type\": \"int\"}\n" +
+                    " ]\n" +
+                    '}');
 
     private static final List<GenericRecord> AVRO = Arrays.asList(
             row(AVSC, 12301, "123011", 12301, 123011.1),
@@ -81,7 +77,7 @@ public class SparkVerifierTest
         return record;
     }
 
-    private static final JavaSparkContext JAVA_SPARK_CONTEXT = new JavaSparkContext("local[4]", SparkVerifierTest.class.getSimpleName(),  new SparkConf()
+    private static final JavaSparkContext JAVA_SPARK_CONTEXT = new JavaSparkContext("local[4]", SparkVerifierTest.class.getSimpleName(), new SparkConf()
             .set("spark.ui.enabled", "false")
             .set("spark.logLineage", "true")
             .set("spark.sql.shuffle.partitions", "10")
@@ -100,7 +96,7 @@ public class SparkVerifierTest
     @Test
     public void runTestPass() throws IOException
     {
-        runTest(AVRO, AVRO, true, newSparkVerifier(Collections.<String>emptyList(), 10));
+        runTest(AVRO, AVRO, true, newSparkVerifier(Collections.emptyList(), 10));
     }
 
     @Test
@@ -142,17 +138,17 @@ public class SparkVerifierTest
         List<GenericRecord> actual = new ArrayList<>();
         for (Integer i = 1230001; i <= 1230100; i++)
         {
-            actual.add(row(AVSC, (i&8) == 0 ? i : i + 1,
-                    (i&4) == 0 ? String.valueOf(i) : String.valueOf(i + 1),
-                    (i&2) == 0 ? i : i + 1,
-                    (i&1) == 0 ? i * 1.0 : i * 1.0 + 1));
+            actual.add(row(AVSC, (i & 8) == 0 ? i : i + 1,
+                    (i & 4) == 0 ? String.valueOf(i) : String.valueOf(i + 1),
+                    (i & 2) == 0 ? i : i + 1,
+                    (i & 1) == 0 ? i * 1.0 : i * 1.0 + 1));
         }
         List<GenericRecord> expected = new ArrayList<>();
         for (Integer i = 1230001; i <= 1230100; i++)
         {
             expected.add(row(AVSC, i, i.toString(), i, i * 1.0));
         }
-        runTest(actual, expected, false, newSparkVerifier(Collections.<String>emptyList(), 100));
+        runTest(actual, expected, false, newSparkVerifier(Collections.emptyList(), 100));
     }
 
     @Test
@@ -175,26 +171,26 @@ public class SparkVerifierTest
         {
             expected.add(row(AVSC, i, i.toString(), i, i * 1.0));
         }
-        runTest(actual, expected, false, newSparkVerifier(Collections.<String>emptyList(), 100));
+        runTest(actual, expected, false, newSparkVerifier(Collections.emptyList(), 100));
     }
 
     @Test
     public void ignoreSurplusColumns() throws IOException
     {
-        runTest(AVRO, AVRO_MISS_COLUMN, true, newSparkVerifier(Collections.<String>emptyList(), 10).withIgnoreSurplusColumns(true));
+        runTest(AVRO, AVRO_MISS_COLUMN, true, newSparkVerifier(Collections.emptyList(), 10).withIgnoreSurplusColumns(true));
     }
 
     @Test
     public void ignoreSurplusColumnsBug() throws IOException
     {
-        runTest(AVRO, AVRO_MISS_COLUMN, true, newSparkVerifier(Collections.<String>emptyList(), 10)
+        runTest(AVRO, AVRO_MISS_COLUMN, true, newSparkVerifier(Collections.emptyList(), 10)
                 .withIgnoreSurplusColumns(true).withColumnsToIgnore(new HashSet<>(Collections.singletonList("foo"))));
     }
 
     @Test
     public void ignoreColumns() throws IOException
     {
-        runTest(AVRO, AVRO_X, false, newSparkVerifier(Collections.<String>emptyList(), 10)
+        runTest(AVRO, AVRO_X, false, newSparkVerifier(Collections.emptyList(), 10)
                 .withColumnsToIgnore(new HashSet<>(Arrays.asList("k2", "v2"))));
     }
 
@@ -203,16 +199,16 @@ public class SparkVerifierTest
     {
         Schema schema = new Schema.Parser().parse(
                 "{\"namespace\": \"verify.avro\",\n" +
-                " \"type\": \"record\",\n" +
-                " \"name\": \"Row\",\n" +
-                " \"fields\": [\n" +
-                "     {\"name\": \"k1\", \"type\": \"int\"},\n" +
-                "     {\"name\": \"v1\", \"type\": \"string\"},\n" +
-                "     {\"name\": \"k2\", \"type\": \"int\"},\n" +
-                "     {\"name\": \"v2\", \"type\": \"double\"},\n" +
-                "     {\"name\": \"v3\", \"type\": \"double\"}\n" +
-                " ]\n" +
-                '}');
+                        " \"type\": \"record\",\n" +
+                        " \"name\": \"Row\",\n" +
+                        " \"fields\": [\n" +
+                        "     {\"name\": \"k1\", \"type\": \"int\"},\n" +
+                        "     {\"name\": \"v1\", \"type\": \"string\"},\n" +
+                        "     {\"name\": \"k2\", \"type\": \"int\"},\n" +
+                        "     {\"name\": \"v2\", \"type\": \"double\"},\n" +
+                        "     {\"name\": \"v3\", \"type\": \"double\"}\n" +
+                        " ]\n" +
+                        '}');
         List<GenericRecord> actual = Arrays.asList(
                 row(schema, 12301, "123011", 12301, 123011.1, 123021.1),
                 row(schema, 12301, "123012", 12302, 123012.2, 123022.2),
@@ -223,7 +219,7 @@ public class SparkVerifierTest
                 row(schema, 12301, "123012", 12302, 123012.19, 123022.19),
                 row(schema, 12301, "123013", 12303, 123012.95, 123022.95),
                 row(schema, 12302, "123021", 12301, 123020.75, 123030.75));
-        runTest(actual, expected, false, newSparkVerifier(Collections.<String>emptyList(), 10).withTolerance("v2", 0.01));
+        runTest(actual, expected, false, newSparkVerifier(Collections.emptyList(), 10).withTolerance("v2", 0.01));
     }
 
     @Test
@@ -241,7 +237,7 @@ public class SparkVerifierTest
                 row(AVSC, 12301, "123013", 12303, 123012.79),
                 row(AVSC, 12302, "123021", 12301, 123020.91)
         );
-        runTest(actual, expected, false, newSparkVerifier(Collections.<String>emptyList(), 10).withTolerance(0.1));
+        runTest(actual, expected, false, newSparkVerifier(Collections.emptyList(), 10).withTolerance(0.1));
     }
 
     private void runTest(List<GenericRecord> actual, List<GenericRecord> expected, boolean passed, SparkVerifier sparkVerifier) throws IOException

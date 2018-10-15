@@ -16,6 +16,9 @@
 
 package com.gs.tablasco.verify;
 
+import com.gs.tablasco.compare.CellFormatter;
+import com.gs.tablasco.compare.ToleranceCellComparator;
+import com.gs.tablasco.compare.VarianceCellComparator;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,8 +29,8 @@ public class CellComparatorTest
     private final double tolerance = 0.1d;
     private final double varianceThreshold = 5.0d;
 
-    public final VarianceCellComparator varianceCellComparator = new VarianceCellComparator(new CellFormatter(tolerance, true), varianceThreshold);
-    public final ToleranceCellComparator toleranceCellComparator = new ToleranceCellComparator(new CellFormatter(tolerance, true));
+    public final VarianceCellComparator varianceCellComparator = new VarianceCellComparator(new CellFormatter(tolerance, true, "Expected", "Actual"), varianceThreshold);
+    public final ToleranceCellComparator toleranceCellComparator = new ToleranceCellComparator(new CellFormatter(tolerance, true, "Expected", "Actual"));
 
     @Test
     public void testCompareToleranceStringInputsFail()

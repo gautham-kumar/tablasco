@@ -35,22 +35,22 @@ public class InvestigationTest
             .withMavenDirectoryStrategy();
 
     @Test(expected = IllegalArgumentException.class)
-    public void keyColumnMismatch()
+    public void keyColumnMismatch() throws IOException
     {
         Investigation investigation = new SimpleInvestigation(
                 "Table",
-                TableTestUtils.createTable(2, "A", "K"),
-                TableTestUtils.createTable(2, "A", "X"));
+                TableTestUtils.createTable("name", 2, "A", "K"),
+                TableTestUtils.createTable("name", 2, "A", "X"));
         this.tableVerifier.investigate(investigation);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void noOtherColumnsMatch()
+    public void noOtherColumnsMatch() throws IOException
     {
         Investigation investigation = new SimpleInvestigation(
                 "Table",
-                TableTestUtils.createTable(2, "A", "K"),
-                TableTestUtils.createTable(2, "B", "K"));
+                TableTestUtils.createTable("name", 2, "A", "K"),
+                TableTestUtils.createTable("name", 2, "B", "K"));
         this.tableVerifier.investigate(investigation);
     }
 
@@ -60,20 +60,20 @@ public class InvestigationTest
         Investigation investigation = new ComplexInvestigation(Arrays.asList(
                 new SimpleInvestigationLevel(
                         "Initial Query",
-                        TableTestUtils.createTable(2, "C", "K", "1", "K1", "2", "K2"),
-                        TableTestUtils.createTable(2, "C", "K", "9", "K1", "2", "K2")),
+                        TableTestUtils.createTable("name", 2, "C", "K", "1", "K1", "2", "K2"),
+                        TableTestUtils.createTable("name", 2, "C", "K", "9", "K1", "2", "K2")),
                 new SimpleInvestigationLevel(
                         "First Drilldown",
-                        TableTestUtils.createTable(2, "C", "K", "3", "K3", "9", "K4"),
-                        TableTestUtils.createTable(2, "C", "K", "9", "K3", "4", "K4")),
+                        TableTestUtils.createTable("name", 2, "C", "K", "3", "K3", "9", "K4"),
+                        TableTestUtils.createTable("name", 2, "C", "K", "9", "K3", "4", "K4")),
                 new SimpleInvestigationLevel(
                         "Second Drilldown",
-                        TableTestUtils.createTable(2, "C", "K", "5", "K5", "6", "K6"),
-                        TableTestUtils.createTable(2, "C", "K", "5", "K5", "6", "K6"))),
+                        TableTestUtils.createTable("name", 2, "C", "K", "5", "K5", "6", "K6"),
+                        TableTestUtils.createTable("name", 2, "C", "K", "5", "K5", "6", "K6"))),
                 Arrays.asList(
                         null,
-                        Arrays.<Object>asList("K1"),
-                        Arrays.<Object>asList("K3", "K4")),
+                        Arrays.asList("K1"),
+                        Arrays.asList("K3", "K4")),
                 100);
         try
         {
@@ -88,64 +88,64 @@ public class InvestigationTest
         }
         Assert.assertEquals(
                 "<body>\n" +
-                "<div class=\"metadata\">\n" +
-                "<i/>\n" +
-                "</div>\n" +
-                "<h1>Initial Results</h1>\n" +
-                "<div id=\"Initial_Results.Initial_Query\">\n" +
-                "<h2>Initial Query</h2>\n" +
-                "<table border=\"1\" cellspacing=\"0\">\n" +
-                "<tr>\n" +
-                "<th class=\"pass\">C</th>\n" +
-                "<th class=\"pass\">K</th>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"fail\">9<p>Expected</p>\n" +
-                "<hr/>1<p>Actual</p>\n" +
-                "</td>\n" +
-                "<td class=\"pass\">K1</td>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"pass multi\" colspan=\"2\">1 matched row...</td>\n" +
-                "</tr>\n" +
-                "</table>\n" +
-                "</div>\n" +
-                "<h1>Investigation Level 1 (Top 100)</h1>\n" +
-                "<div id=\"Investigation_Level_1_Top_100_.First_Drilldown\">\n" +
-                "<h2>First Drilldown</h2>\n" +
-                "<table border=\"1\" cellspacing=\"0\">\n" +
-                "<tr>\n" +
-                "<th class=\"pass\">C</th>\n" +
-                "<th class=\"pass\">K</th>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"fail\">9<p>Expected</p>\n" +
-                "<hr/>3<p>Actual</p>\n" +
-                "</td>\n" +
-                "<td class=\"pass\">K3</td>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"fail\">4<p>Expected</p>\n" +
-                "<hr/>9<p>Actual</p>\n" +
-                "</td>\n" +
-                "<td class=\"pass\">K4</td>\n" +
-                "</tr>\n" +
-                "</table>\n" +
-                "</div>\n" +
-                "<h1>Investigation Level 2 (Top 100)</h1>\n" +
-                "<div id=\"Investigation_Level_2_Top_100_.Second_Drilldown\">\n" +
-                "<h2>Second Drilldown</h2>\n" +
-                "<table border=\"1\" cellspacing=\"0\">\n" +
-                "<tr>\n" +
-                "<th class=\"pass\">C</th>\n" +
-                "<th class=\"pass\">K</th>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"pass multi\" colspan=\"2\">2 matched rows...</td>\n" +
-                "</tr>\n" +
-                "</table>\n" +
-                "</div>\n" +
-                "</body>", TableTestUtils.getHtml(this.tableVerifier, "body"));
+                        "<div class=\"metadata\">\n" +
+                        "<i/>\n" +
+                        "</div>\n" +
+                        "<h1>Initial Results</h1>\n" +
+                        "<div id=\"Initial_Results.Initial_Query\">\n" +
+                        "<h2>Initial Query</h2>\n" +
+                        "<table border=\"1\" cellspacing=\"0\">\n" +
+                        "<tr>\n" +
+                        "<th class=\"pass\">C</th>\n" +
+                        "<th class=\"pass\">K</th>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"fail\">9<p>Expected</p>\n" +
+                        "<hr/>1<p>Actual</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"pass\">K1</td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"pass multi\" colspan=\"2\">1 matched row...</td>\n" +
+                        "</tr>\n" +
+                        "</table>\n" +
+                        "</div>\n" +
+                        "<h1>Investigation Level 1 (Top 100)</h1>\n" +
+                        "<div id=\"Investigation_Level_1_Top_100_.First_Drilldown\">\n" +
+                        "<h2>First Drilldown</h2>\n" +
+                        "<table border=\"1\" cellspacing=\"0\">\n" +
+                        "<tr>\n" +
+                        "<th class=\"pass\">C</th>\n" +
+                        "<th class=\"pass\">K</th>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"fail\">9<p>Expected</p>\n" +
+                        "<hr/>3<p>Actual</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"pass\">K3</td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"fail\">4<p>Expected</p>\n" +
+                        "<hr/>9<p>Actual</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"pass\">K4</td>\n" +
+                        "</tr>\n" +
+                        "</table>\n" +
+                        "</div>\n" +
+                        "<h1>Investigation Level 2 (Top 100)</h1>\n" +
+                        "<div id=\"Investigation_Level_2_Top_100_.Second_Drilldown\">\n" +
+                        "<h2>Second Drilldown</h2>\n" +
+                        "<table border=\"1\" cellspacing=\"0\">\n" +
+                        "<tr>\n" +
+                        "<th class=\"pass\">C</th>\n" +
+                        "<th class=\"pass\">K</th>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"pass multi\" colspan=\"2\">2 matched rows...</td>\n" +
+                        "</tr>\n" +
+                        "</table>\n" +
+                        "</div>\n" +
+                        "</body>", TableTestUtils.getHtml(this.tableVerifier, "body"));
     }
 
     @Test
@@ -154,44 +154,44 @@ public class InvestigationTest
         Investigation investigation = new ComplexInvestigation(Arrays.asList(
                 new SimpleInvestigationLevel(
                         "Initial Query",
-                        TableTestUtils.createTable(3,
+                        TableTestUtils.createTable("name", 3,
                                 "C1", "C2", "K",
-                                "1",  "X",  "K1",
-                                "2",  "X",  "K2",
-                                "3",  "X",  "K3"),
-                        TableTestUtils.createTable(2,
+                                "1", "X", "K1",
+                                "2", "X", "K2",
+                                "3", "X", "K3"),
+                        TableTestUtils.createTable("name", 2,
                                 "C1", "K",
-                                "9",  "K1",
-                                "2",  "K2")),
+                                "9", "K1",
+                                "2", "K2")),
                 new SimpleInvestigationLevel(
                         "First Drilldown",
-                        TableTestUtils.createTable(2,
+                        TableTestUtils.createTable("name", 2,
                                 "C1", "K",
-                                "9",  "K1",
-                                "2",  "K2"),
-                        TableTestUtils.createTable(3,
+                                "9", "K1",
+                                "2", "K2"),
+                        TableTestUtils.createTable("name", 3,
                                 "C1", "C2", "K",
-                                "1",  "X",  "K1",
-                                "2",  "X",  "K2",
-                                "3",  "X",  "K3")),
+                                "1", "X", "K1",
+                                "2", "X", "K2",
+                                "3", "X", "K3")),
                 new SimpleInvestigationLevel(
                         "First Drilldown",
-                        TableTestUtils.createTable(2,
+                        TableTestUtils.createTable("name", 2,
                                 "C1", "K"),
-                        TableTestUtils.createTable(3,
+                        TableTestUtils.createTable("name", 3,
                                 "C1", "C2", "K",
-                                "1",  "X",  "K1")),
+                                "1", "X", "K1")),
                 new SimpleInvestigationLevel(
                         "First Drilldown",
-                        TableTestUtils.createTable(2,
+                        TableTestUtils.createTable("name", 2,
                                 "C1", "K"),
-                        TableTestUtils.createTable(2,
+                        TableTestUtils.createTable("name", 2,
                                 "C1", "K"))),
                 Arrays.asList(
                         null,
-                        Arrays.<Object>asList("K1", "K3"),
-                        Arrays.<Object>asList("K1", "K3"),
-                        Arrays.<Object>asList("K1")),
+                        Arrays.asList("K1", "K3"),
+                        Arrays.asList("K1", "K3"),
+                        Arrays.asList("K1")),
                 100);
         try
         {
@@ -206,102 +206,102 @@ public class InvestigationTest
         }
         Assert.assertEquals(
                 "<body>\n" +
-                "<div class=\"metadata\">\n" +
-                "<i/>\n" +
-                "</div>\n" +
-                "<h1>Initial Results</h1>\n" +
-                "<div id=\"Initial_Results.Initial_Query\">\n" +
-                "<h2>Initial Query</h2>\n" +
-                "<table border=\"1\" cellspacing=\"0\">\n" +
-                "<tr>\n" +
-                "<th class=\"pass\">C1</th>\n" +
-                "<th class=\"surplus\">C2<p>Surplus</p>\n" +
-                "</th>\n" +
-                "<th class=\"pass\">K</th>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"fail\">9<p>Expected</p>\n" +
-                "<hr/>1<p>Actual</p>\n" +
-                "</td>\n" +
-                "<td class=\"surplus\">X<p>Surplus</p>\n" +
-                "</td>\n" +
-                "<td class=\"pass\">K1</td>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"pass multi\" colspan=\"3\">1 matched row...</td>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"surplus\">3<p>Surplus</p>\n" +
-                "</td>\n" +
-                "<td class=\"surplus\">X<p>Surplus</p>\n" +
-                "</td>\n" +
-                "<td class=\"surplus\">K3<p>Surplus</p>\n" +
-                "</td>\n" +
-                "</tr>\n" +
-                "</table>\n" +
-                "</div>\n" +
-                "<h1>Investigation Level 1 (Top 100)</h1>\n" +
-                "<div id=\"Investigation_Level_1_Top_100_.First_Drilldown\">\n" +
-                "<h2>First Drilldown</h2>\n" +
-                "<table border=\"1\" cellspacing=\"0\">\n" +
-                "<tr>\n" +
-                "<th class=\"pass\">C1</th>\n" +
-                "<th class=\"missing\">C2<p>Missing</p>\n" +
-                "</th>\n" +
-                "<th class=\"pass\">K</th>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"fail\">1<p>Expected</p>\n" +
-                "<hr/>9<p>Actual</p>\n" +
-                "</td>\n" +
-                "<td class=\"missing\">X<p>Missing</p>\n" +
-                "</td>\n" +
-                "<td class=\"pass\">K1</td>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"pass multi\" colspan=\"3\">1 matched row...</td>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"missing\">3<p>Missing</p>\n" +
-                "</td>\n" +
-                "<td class=\"missing\">X<p>Missing</p>\n" +
-                "</td>\n" +
-                "<td class=\"missing\">K3<p>Missing</p>\n" +
-                "</td>\n" +
-                "</tr>\n" +
-                "</table>\n" +
-                "</div>\n" +
-                "<h1>Investigation Level 2 (Top 100)</h1>\n" +
-                "<div id=\"Investigation_Level_2_Top_100_.First_Drilldown\">\n" +
-                "<h2>First Drilldown</h2>\n" +
-                "<table border=\"1\" cellspacing=\"0\">\n" +
-                "<tr>\n" +
-                "<th class=\"pass\">C1</th>\n" +
-                "<th class=\"missing\">C2<p>Missing</p>\n" +
-                "</th>\n" +
-                "<th class=\"pass\">K</th>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"missing\">1<p>Missing</p>\n" +
-                "</td>\n" +
-                "<td class=\"missing\">X<p>Missing</p>\n" +
-                "</td>\n" +
-                "<td class=\"missing\">K1<p>Missing</p>\n" +
-                "</td>\n" +
-                "</tr>\n" +
-                "</table>\n" +
-                "</div>\n" +
-                "<h1>Investigation Level 3 (Top 100)</h1>\n" +
-                "<div id=\"Investigation_Level_3_Top_100_.First_Drilldown\">\n" +
-                "<h2>First Drilldown</h2>\n" +
-                "<table border=\"1\" cellspacing=\"0\">\n" +
-                "<tr>\n" +
-                "<th class=\"pass\">C1</th>\n" +
-                "<th class=\"pass\">K</th>\n" +
-                "</tr>\n" +
-                "</table>\n" +
-                "</div>\n" +
-                "</body>", TableTestUtils.getHtml(this.tableVerifier, "body"));
+                        "<div class=\"metadata\">\n" +
+                        "<i/>\n" +
+                        "</div>\n" +
+                        "<h1>Initial Results</h1>\n" +
+                        "<div id=\"Initial_Results.Initial_Query\">\n" +
+                        "<h2>Initial Query</h2>\n" +
+                        "<table border=\"1\" cellspacing=\"0\">\n" +
+                        "<tr>\n" +
+                        "<th class=\"pass\">C1</th>\n" +
+                        "<th class=\"surplus\">C2<p>Surplus</p>\n" +
+                        "</th>\n" +
+                        "<th class=\"pass\">K</th>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"fail\">9<p>Expected</p>\n" +
+                        "<hr/>1<p>Actual</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"surplus\">X<p>Surplus</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"pass\">K1</td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"pass multi\" colspan=\"3\">1 matched row...</td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"surplus\">3<p>Surplus</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"surplus\">X<p>Surplus</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"surplus\">K3<p>Surplus</p>\n" +
+                        "</td>\n" +
+                        "</tr>\n" +
+                        "</table>\n" +
+                        "</div>\n" +
+                        "<h1>Investigation Level 1 (Top 100)</h1>\n" +
+                        "<div id=\"Investigation_Level_1_Top_100_.First_Drilldown\">\n" +
+                        "<h2>First Drilldown</h2>\n" +
+                        "<table border=\"1\" cellspacing=\"0\">\n" +
+                        "<tr>\n" +
+                        "<th class=\"pass\">C1</th>\n" +
+                        "<th class=\"missing\">C2<p>Missing</p>\n" +
+                        "</th>\n" +
+                        "<th class=\"pass\">K</th>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"fail\">1<p>Expected</p>\n" +
+                        "<hr/>9<p>Actual</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"missing\">X<p>Missing</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"pass\">K1</td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"pass multi\" colspan=\"3\">1 matched row...</td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"missing\">3<p>Missing</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"missing\">X<p>Missing</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"missing\">K3<p>Missing</p>\n" +
+                        "</td>\n" +
+                        "</tr>\n" +
+                        "</table>\n" +
+                        "</div>\n" +
+                        "<h1>Investigation Level 2 (Top 100)</h1>\n" +
+                        "<div id=\"Investigation_Level_2_Top_100_.First_Drilldown\">\n" +
+                        "<h2>First Drilldown</h2>\n" +
+                        "<table border=\"1\" cellspacing=\"0\">\n" +
+                        "<tr>\n" +
+                        "<th class=\"pass\">C1</th>\n" +
+                        "<th class=\"missing\">C2<p>Missing</p>\n" +
+                        "</th>\n" +
+                        "<th class=\"pass\">K</th>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"missing\">1<p>Missing</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"missing\">X<p>Missing</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"missing\">K1<p>Missing</p>\n" +
+                        "</td>\n" +
+                        "</tr>\n" +
+                        "</table>\n" +
+                        "</div>\n" +
+                        "<h1>Investigation Level 3 (Top 100)</h1>\n" +
+                        "<div id=\"Investigation_Level_3_Top_100_.First_Drilldown\">\n" +
+                        "<h2>First Drilldown</h2>\n" +
+                        "<table border=\"1\" cellspacing=\"0\">\n" +
+                        "<tr>\n" +
+                        "<th class=\"pass\">C1</th>\n" +
+                        "<th class=\"pass\">K</th>\n" +
+                        "</tr>\n" +
+                        "</table>\n" +
+                        "</div>\n" +
+                        "</body>", TableTestUtils.getHtml(this.tableVerifier, "body"));
     }
 
     @Test
@@ -310,34 +310,34 @@ public class InvestigationTest
         Investigation investigation = new ComplexInvestigation(Arrays.asList(
                 new SimpleInvestigationLevel(
                         "Initial Query",
-                        TableTestUtils.createTable(2, "C", "K", "1", "K1", "2", "K2"),
-                        TableTestUtils.createTable(2, "C", "K", "1", "K1", "2", "K2")),
+                        TableTestUtils.createTable("name", 2, "C", "K", "1", "K1", "2", "K2"),
+                        TableTestUtils.createTable("name", 2, "C", "K", "1", "K1", "2", "K2")),
                 new SimpleInvestigationLevel(
                         "First Drilldown",
-                        TableTestUtils.createTable(2, "C", "K", "3", "K3", "9", "K4"),
-                        TableTestUtils.createTable(2, "C", "K", "9", "K3", "4", "K4"))),
+                        TableTestUtils.createTable("name", 2, "C", "K", "3", "K3", "9", "K4"),
+                        TableTestUtils.createTable("name", 2, "C", "K", "9", "K3", "4", "K4"))),
                 Arrays.asList((List<Object>) null),
                 100);
         this.tableVerifier.investigate(investigation);
         Assert.assertEquals(
                 "<body>\n" +
-                "<div class=\"metadata\">\n" +
-                "<i/>\n" +
-                "</div>\n" +
-                "<h1>Initial Results</h1>\n" +
-                "<div id=\"Initial_Results.Initial_Query\">\n" +
-                "<h2>Initial Query</h2>\n" +
-                "<table border=\"1\" cellspacing=\"0\">\n" +
-                "<tr>\n" +
-                "<th class=\"pass\">C</th>\n" +
-                "<th class=\"pass\">K</th>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"pass multi\" colspan=\"2\">2 matched rows...</td>\n" +
-                "</tr>\n" +
-                "</table>\n" +
-                "</div>\n" +
-                "</body>", TableTestUtils.getHtml(this.tableVerifier, "body"));
+                        "<div class=\"metadata\">\n" +
+                        "<i/>\n" +
+                        "</div>\n" +
+                        "<h1>Initial Results</h1>\n" +
+                        "<div id=\"Initial_Results.Initial_Query\">\n" +
+                        "<h2>Initial Query</h2>\n" +
+                        "<table border=\"1\" cellspacing=\"0\">\n" +
+                        "<tr>\n" +
+                        "<th class=\"pass\">C</th>\n" +
+                        "<th class=\"pass\">K</th>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"pass multi\" colspan=\"2\">2 matched rows...</td>\n" +
+                        "</tr>\n" +
+                        "</table>\n" +
+                        "</div>\n" +
+                        "</body>", TableTestUtils.getHtml(this.tableVerifier, "body"));
     }
 
     @Test
@@ -346,27 +346,27 @@ public class InvestigationTest
         Investigation investigation = new ComplexInvestigation(Arrays.asList(
                 new SimpleInvestigationLevel(
                         "Initial Query",
-                        TableTestUtils.createTable(2,
+                        TableTestUtils.createTable("name", 2,
                                 "C", "I",
-                                "1",  1,
-                                "2",  2,
-                                "3",  3,
-                                "4",  4,
-                                "6",  6),
-                        TableTestUtils.createTable(2,
+                                "1", 1,
+                                "2", 2,
+                                "3", 3,
+                                "4", 4,
+                                "6", 6),
+                        TableTestUtils.createTable("name", 2,
                                 "C", "I",
-                                "9",  2,
-                                "3",  3,
-                                "4",  9,
-                                "5",  5,
-                                "6",  6)),
+                                "9", 2,
+                                "3", 3,
+                                "4", 9,
+                                "5", 5,
+                                "6", 6)),
                 new SimpleInvestigationLevel(
                         "First Drilldown",
-                        TableTestUtils.createTable(1, "K", "K1"),
-                        TableTestUtils.createTable(1, "K", "K1"))),
+                        TableTestUtils.createTable("name", 1, "K", "K1"),
+                        TableTestUtils.createTable("name", 1, "K", "K1"))),
                 Arrays.asList(
                         null,
-                        Arrays.<Object>asList(1, 2, 9, 4, 5)),
+                        Arrays.asList(1, 2, 9, 4, 5)),
                 100);
         try
         {
@@ -381,68 +381,68 @@ public class InvestigationTest
         }
         Assert.assertEquals(
                 "<body>\n" +
-                "<div class=\"metadata\">\n" +
-                "<i/>\n" +
-                "</div>\n" +
-                "<h1>Initial Results</h1>\n" +
-                "<div id=\"Initial_Results.Initial_Query\">\n" +
-                "<h2>Initial Query</h2>\n" +
-                "<table border=\"1\" cellspacing=\"0\">\n" +
-                "<tr>\n" +
-                "<th class=\"pass\">C</th>\n" +
-                "<th class=\"pass\">I</th>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"surplus\">1<p>Surplus</p>\n" +
-                "</td>\n" +
-                "<td class=\"surplus number\">1<p>Surplus</p>\n" +
-                "</td>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"fail\">9<p>Expected</p>\n" +
-                "<hr/>2<p>Actual</p>\n" +
-                "</td>\n" +
-                "<td class=\"pass number\">2</td>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"pass multi\" colspan=\"2\">1 matched row...</td>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"missing\">4<p>Missing</p>\n" +
-                "</td>\n" +
-                "<td class=\"missing number\">9<p>Missing</p>\n" +
-                "</td>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"surplus\">4<p>Surplus</p>\n" +
-                "</td>\n" +
-                "<td class=\"surplus number\">4<p>Surplus</p>\n" +
-                "</td>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"missing\">5<p>Missing</p>\n" +
-                "</td>\n" +
-                "<td class=\"missing number\">5<p>Missing</p>\n" +
-                "</td>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"pass multi\" colspan=\"2\">1 matched row...</td>\n" +
-                "</tr>\n" +
-                "</table>\n" +
-                "</div>\n" +
-                "<h1>Investigation Level 1 (Top 100)</h1>\n" +
-                "<div id=\"Investigation_Level_1_Top_100_.First_Drilldown\">\n" +
-                "<h2>First Drilldown</h2>\n" +
-                "<table border=\"1\" cellspacing=\"0\">\n" +
-                "<tr>\n" +
-                "<th class=\"pass\">K</th>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"pass multi\" colspan=\"1\">1 matched row...</td>\n" +
-                "</tr>\n" +
-                "</table>\n" +
-                "</div>\n" +
-        "</body>", TableTestUtils.getHtml(this.tableVerifier, "body"));
+                        "<div class=\"metadata\">\n" +
+                        "<i/>\n" +
+                        "</div>\n" +
+                        "<h1>Initial Results</h1>\n" +
+                        "<div id=\"Initial_Results.Initial_Query\">\n" +
+                        "<h2>Initial Query</h2>\n" +
+                        "<table border=\"1\" cellspacing=\"0\">\n" +
+                        "<tr>\n" +
+                        "<th class=\"pass\">C</th>\n" +
+                        "<th class=\"pass\">I</th>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"surplus\">1<p>Surplus</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"surplus number\">1<p>Surplus</p>\n" +
+                        "</td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"fail\">9<p>Expected</p>\n" +
+                        "<hr/>2<p>Actual</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"pass number\">2</td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"pass multi\" colspan=\"2\">1 matched row...</td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"missing\">4<p>Missing</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"missing number\">9<p>Missing</p>\n" +
+                        "</td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"surplus\">4<p>Surplus</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"surplus number\">4<p>Surplus</p>\n" +
+                        "</td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"missing\">5<p>Missing</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"missing number\">5<p>Missing</p>\n" +
+                        "</td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"pass multi\" colspan=\"2\">1 matched row...</td>\n" +
+                        "</tr>\n" +
+                        "</table>\n" +
+                        "</div>\n" +
+                        "<h1>Investigation Level 1 (Top 100)</h1>\n" +
+                        "<div id=\"Investigation_Level_1_Top_100_.First_Drilldown\">\n" +
+                        "<h2>First Drilldown</h2>\n" +
+                        "<table border=\"1\" cellspacing=\"0\">\n" +
+                        "<tr>\n" +
+                        "<th class=\"pass\">K</th>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"pass multi\" colspan=\"1\">1 matched row...</td>\n" +
+                        "</tr>\n" +
+                        "</table>\n" +
+                        "</div>\n" +
+                        "</body>", TableTestUtils.getHtml(this.tableVerifier, "body"));
     }
 
     @Test
@@ -451,16 +451,16 @@ public class InvestigationTest
         Investigation investigation = new ComplexInvestigation(Arrays.asList(
                 new SimpleInvestigationLevel(
                         "Initial Query",
-                        TableTestUtils.createTable(2, "C", "K", "1", "K1", "2", "K2", "3", "K3"),
-                        TableTestUtils.createTable(2, "C", "K", "9", "K1", "9", "K2", "9", "K3")),
+                        TableTestUtils.createTable("name", 2, "C", "K", "1", "K1", "2", "K2", "3", "K3"),
+                        TableTestUtils.createTable("name", 2, "C", "K", "9", "K1", "9", "K2", "9", "K3")),
                 new SimpleInvestigationLevel(
                         "First Drilldown",
-                        TableTestUtils.createTable(1, "K", "K1"),
-                        TableTestUtils.createTable(1, "K", "K1"))),
+                        TableTestUtils.createTable("name", 1, "K", "K1"),
+                        TableTestUtils.createTable("name", 1, "K", "K1"))),
                 Arrays.asList(
                         null,
-                        Arrays.<Object>asList("K1", "K2")),
-                        2);
+                        Arrays.asList("K1", "K2")),
+                2);
         try
         {
             this.tableVerifier.investigate(investigation);
@@ -474,50 +474,50 @@ public class InvestigationTest
         }
         Assert.assertEquals(
                 "<body>\n" +
-                "<div class=\"metadata\">\n" +
-                "<i/>\n" +
-                "</div>\n" +
-                "<h1>Initial Results</h1>\n" +
-                "<div id=\"Initial_Results.Initial_Query\">\n" +
-                "<h2>Initial Query</h2>\n" +
-                "<table border=\"1\" cellspacing=\"0\">\n" +
-                "<tr>\n" +
-                "<th class=\"pass\">C</th>\n" +
-                "<th class=\"pass\">K</th>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"fail\">9<p>Expected</p>\n" +
-                "<hr/>1<p>Actual</p>\n" +
-                "</td>\n" +
-                "<td class=\"pass\">K1</td>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"fail\">9<p>Expected</p>\n" +
-                "<hr/>2<p>Actual</p>\n" +
-                "</td>\n" +
-                "<td class=\"pass\">K2</td>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"fail\">9<p>Expected</p>\n" +
-                "<hr/>3<p>Actual</p>\n" +
-                "</td>\n" +
-                "<td class=\"pass\">K3</td>\n" +
-                "</tr>\n" +
-                "</table>\n" +
-                "</div>\n" +
-                "<h1>Investigation Level 1 (Top 2)</h1>\n" +
-                "<div id=\"Investigation_Level_1_Top_2_.First_Drilldown\">\n" +
-                "<h2>First Drilldown</h2>\n" +
-                "<table border=\"1\" cellspacing=\"0\">\n" +
-                "<tr>\n" +
-                "<th class=\"pass\">K</th>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"pass multi\" colspan=\"1\">1 matched row...</td>\n" +
-                "</tr>\n" +
-                "</table>\n" +
-                "</div>\n" +
-                "</body>", TableTestUtils.getHtml(this.tableVerifier, "body"));
+                        "<div class=\"metadata\">\n" +
+                        "<i/>\n" +
+                        "</div>\n" +
+                        "<h1>Initial Results</h1>\n" +
+                        "<div id=\"Initial_Results.Initial_Query\">\n" +
+                        "<h2>Initial Query</h2>\n" +
+                        "<table border=\"1\" cellspacing=\"0\">\n" +
+                        "<tr>\n" +
+                        "<th class=\"pass\">C</th>\n" +
+                        "<th class=\"pass\">K</th>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"fail\">9<p>Expected</p>\n" +
+                        "<hr/>1<p>Actual</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"pass\">K1</td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"fail\">9<p>Expected</p>\n" +
+                        "<hr/>2<p>Actual</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"pass\">K2</td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"fail\">9<p>Expected</p>\n" +
+                        "<hr/>3<p>Actual</p>\n" +
+                        "</td>\n" +
+                        "<td class=\"pass\">K3</td>\n" +
+                        "</tr>\n" +
+                        "</table>\n" +
+                        "</div>\n" +
+                        "<h1>Investigation Level 1 (Top 2)</h1>\n" +
+                        "<div id=\"Investigation_Level_1_Top_2_.First_Drilldown\">\n" +
+                        "<h2>First Drilldown</h2>\n" +
+                        "<table border=\"1\" cellspacing=\"0\">\n" +
+                        "<tr>\n" +
+                        "<th class=\"pass\">K</th>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"pass multi\" colspan=\"1\">1 matched row...</td>\n" +
+                        "</tr>\n" +
+                        "</table>\n" +
+                        "</div>\n" +
+                        "</body>", TableTestUtils.getHtml(this.tableVerifier, "body"));
     }
 
     @Test
@@ -526,19 +526,19 @@ public class InvestigationTest
         Investigation investigation = new ComplexInvestigation(Arrays.asList(
                 new SimpleInvestigationLevel(
                         "Initial Query",
-                        TableTestUtils.createTable(1, "K", "K1"),
-                        TableTestUtils.createTable(1, "K", "K9")),
+                        TableTestUtils.createTable("name", 1, "K", "K1"),
+                        TableTestUtils.createTable("name", 1, "K", "K9")),
                 new SimpleInvestigationLevel(
                         "First Drilldown",
-                        TableTestUtils.createTable(1, "K", "K1"),
-                        TableTestUtils.createTable(1, "K", "K1")),
+                        TableTestUtils.createTable("name", 1, "K", "K1"),
+                        TableTestUtils.createTable("name", 1, "K", "K1")),
                 new SimpleInvestigationLevel(
                         "Second Drilldown",
-                        TableTestUtils.createTable(1, "K", "K1"),
-                        TableTestUtils.createTable(1, "K", "K9"))),
+                        TableTestUtils.createTable("name", 1, "K", "K1"),
+                        TableTestUtils.createTable("name", 1, "K", "K9"))),
                 Arrays.asList(
                         null,
-                        Arrays.<Object>asList("K1", "K9")),
+                        Arrays.asList("K1", "K9")),
                 100);
         try
         {
@@ -553,54 +553,54 @@ public class InvestigationTest
         }
         Assert.assertEquals(
                 "<body>\n" +
-                "<div class=\"metadata\">\n" +
-                "<i/>\n" +
-                "</div>\n" +
-                "<h1>Initial Results</h1>\n" +
-                "<div id=\"Initial_Results.Initial_Query\">\n" +
-                "<h2>Initial Query</h2>\n" +
-                "<table border=\"1\" cellspacing=\"0\">\n" +
-                "<tr>\n" +
-                "<th class=\"pass\">K</th>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"surplus\">K1<p>Surplus</p>\n" +
-                "</td>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"missing\">K9<p>Missing</p>\n" +
-                "</td>\n" +
-                "</tr>\n" +
-                "</table>\n" +
-                "</div>\n" +
-                "<h1>Investigation Level 1 (Top 100)</h1>\n" +
-                "<div id=\"Investigation_Level_1_Top_100_.First_Drilldown\">\n" +
-                "<h2>First Drilldown</h2>\n" +
-                "<table border=\"1\" cellspacing=\"0\">\n" +
-                "<tr>\n" +
-                "<th class=\"pass\">K</th>\n" +
-                "</tr>\n" +
-                "<tr>\n" +
-                "<td class=\"pass multi\" colspan=\"1\">1 matched row...</td>\n" +
-                "</tr>\n" +
-                "</table>\n" +
-                "</div>\n" +
-                "</body>", TableTestUtils.getHtml(this.tableVerifier, "body"));
+                        "<div class=\"metadata\">\n" +
+                        "<i/>\n" +
+                        "</div>\n" +
+                        "<h1>Initial Results</h1>\n" +
+                        "<div id=\"Initial_Results.Initial_Query\">\n" +
+                        "<h2>Initial Query</h2>\n" +
+                        "<table border=\"1\" cellspacing=\"0\">\n" +
+                        "<tr>\n" +
+                        "<th class=\"pass\">K</th>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"surplus\">K1<p>Surplus</p>\n" +
+                        "</td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"missing\">K9<p>Missing</p>\n" +
+                        "</td>\n" +
+                        "</tr>\n" +
+                        "</table>\n" +
+                        "</div>\n" +
+                        "<h1>Investigation Level 1 (Top 100)</h1>\n" +
+                        "<div id=\"Investigation_Level_1_Top_100_.First_Drilldown\">\n" +
+                        "<h2>First Drilldown</h2>\n" +
+                        "<table border=\"1\" cellspacing=\"0\">\n" +
+                        "<tr>\n" +
+                        "<th class=\"pass\">K</th>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "<td class=\"pass multi\" colspan=\"1\">1 matched row...</td>\n" +
+                        "</tr>\n" +
+                        "</table>\n" +
+                        "</div>\n" +
+                        "</body>", TableTestUtils.getHtml(this.tableVerifier, "body"));
     }
 
-    private static class TableCallable implements Callable<VerifiableTable>
+    private static class TableCallable implements Callable<ComparableTable>
     {
-        private final VerifiableTable verifiableTable;
+        private final ComparableTable ComparableTable;
 
-        private TableCallable(VerifiableTable verifiableTable)
+        private TableCallable(ComparableTable ComparableTable)
         {
-            this.verifiableTable = verifiableTable;
+            this.ComparableTable = ComparableTable;
         }
 
         @Override
-        public VerifiableTable call() throws Exception
+        public ComparableTable call() throws Exception
         {
-            return this.verifiableTable;
+            return this.ComparableTable;
         }
     }
 
@@ -608,7 +608,7 @@ public class InvestigationTest
     {
         private SimpleInvestigationLevel investigationLevel;
 
-        private SimpleInvestigation(String levelDescription, VerifiableTable actualTable, VerifiableTable expectedTable)
+        private SimpleInvestigation(String levelDescription, ComparableTable actualTable, ComparableTable expectedTable)
         {
             this.investigationLevel = new SimpleInvestigationLevel(levelDescription, actualTable, expectedTable);
         }
@@ -635,10 +635,10 @@ public class InvestigationTest
     static class SimpleInvestigationLevel implements InvestigationLevel
     {
         private final String levelDescription;
-        private final VerifiableTable actualTable;
-        private final VerifiableTable expectedTable;
+        private final ComparableTable actualTable;
+        private final ComparableTable expectedTable;
 
-        SimpleInvestigationLevel(String levelDescription, VerifiableTable actualTable, VerifiableTable expectedTable)
+        SimpleInvestigationLevel(String levelDescription, ComparableTable actualTable, ComparableTable expectedTable)
         {
             this.levelDescription = levelDescription;
             this.actualTable = actualTable;
@@ -646,13 +646,13 @@ public class InvestigationTest
         }
 
         @Override
-        public Callable<VerifiableTable> getActualResults()
+        public Callable<ComparableTable> getRhsResults()
         {
             return new TableCallable(this.actualTable);
         }
 
         @Override
-        public Callable<VerifiableTable> getExpectedResults()
+        public Callable<ComparableTable> getLhsResults()
         {
             return new TableCallable(this.expectedTable);
         }

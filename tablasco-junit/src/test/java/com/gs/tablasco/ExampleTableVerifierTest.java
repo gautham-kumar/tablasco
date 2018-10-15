@@ -60,6 +60,12 @@ public class ExampleTableVerifierTest
         }
 
         @Override
+        public String getTableName()
+        {
+            return "Test";
+        }
+
+        @Override
         public int getRowCount()
         {
             return this.rows.size();
@@ -76,9 +82,12 @@ public class ExampleTableVerifierTest
         {
             switch (columnIndex)
             {
-                case 0: return "Entity";
-                case 1: return "Assets";
-                default: return "Liabilities";
+                case 0:
+                    return "Entity";
+                case 1:
+                    return "Assets";
+                default:
+                    return "Liabilities";
             }
         }
 
@@ -88,9 +97,12 @@ public class ExampleTableVerifierTest
             BalanceSheetRow row = this.rows.get(rowIndex);
             switch (columnIndex)
             {
-                case 0: return row.entity;
-                case 1: return row.assets;
-                default: return row.liabilities;
+                case 0:
+                    return row.entity;
+                case 1:
+                    return row.assets;
+                default:
+                    return row.liabilities;
             }
         }
     }

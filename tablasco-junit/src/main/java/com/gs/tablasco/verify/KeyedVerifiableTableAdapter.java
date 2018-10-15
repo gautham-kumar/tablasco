@@ -16,23 +16,13 @@
 
 package com.gs.tablasco.verify;
 
-import com.gs.tablasco.VerifiableTable;
-import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
-import org.eclipse.collections.impl.factory.primitive.IntSets;
+import com.gs.tablasco.ComparableTable;
+import com.gs.tablasco.compare.KeyedComparableTableAdapter;
 
-public class KeyedVerifiableTableAdapter extends DefaultVerifiableTableAdapter implements KeyedVerifiableTable
+public class KeyedVerifiableTableAdapter extends KeyedComparableTableAdapter implements KeyedVerifiableTable
 {
-    private final ImmutableIntSet keyColumnIndices;
-
-    public KeyedVerifiableTableAdapter(VerifiableTable delegate, int... keyColumnIndices)
+    public KeyedVerifiableTableAdapter(ComparableTable delegate, int... keyColumnIndices)
     {
-        super(delegate);
-        this.keyColumnIndices = IntSets.immutable.of(keyColumnIndices);
-    }
-
-    @Override
-    public boolean isKeyColumn(int columnIndex)
-    {
-        return this.keyColumnIndices.contains(columnIndex);
+        super(delegate, keyColumnIndices);
     }
 }

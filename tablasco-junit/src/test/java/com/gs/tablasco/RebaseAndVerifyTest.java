@@ -16,7 +16,6 @@
 
 package com.gs.tablasco;
 
-import com.gs.tablasco.verify.DefaultVerifiableTableAdapter;
 import com.gs.tablasco.verify.ListVerifiableTable;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.MutableList;
@@ -36,11 +35,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RebaseAndVerifyTest
 {
@@ -56,7 +51,7 @@ public class RebaseAndVerifyTest
                 public Object getValueAt(int rowIndex, int columnIndex)
                 {
                     Object valueAt = super.getValueAt(rowIndex, columnIndex);
-                    return valueAt == ADAPT ? ADAPT.toUpperCase() : valueAt;
+                    return ADAPT.equals(valueAt) ? ADAPT.toUpperCase() : valueAt;
                 }
             };
         }
@@ -69,7 +64,7 @@ public class RebaseAndVerifyTest
     private final File outputDir = TableTestUtils.getOutputDirectory();
     private Document outputHtml;
     private File expectedFile;
-    private String[] baselineHeaders = new String[] { "foo", "bar" };
+    private String[] baselineHeaders = new String[]{"foo", "bar"};
 
     @After
     public void assertMetadata() throws IOException
@@ -123,10 +118,10 @@ public class RebaseAndVerifyTest
     @Test
     public void specialNumberHandling() throws Exception
     {
-        VerifiableTable tableForRebase = TableTestUtils.createTable(6,
+        VerifiableTable tableForRebase = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 6,
                 "Double Inf", "Double Neg Inf", "Double NaN", "Float Inf", "Float Neg Inf", "Float NaN",
                 Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NaN,
-                Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NaN);
+                Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NaN));
         this.rebase(Maps.fixedSize.of("tableName", tableForRebase));
         this.verify(Maps.fixedSize.of("tableName", tableForRebase), 1.0d);
         char infinity = '\u221E';
@@ -136,7 +131,7 @@ public class RebaseAndVerifyTest
     @Test
     public void withActualAdapter() throws Exception
     {
-        VerifiableTable table = TableTestUtils.createTable(2, "Key", "Val", "1", ADAPT);
+        VerifiableTable table = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2, "Key", "Val", "1", ADAPT));
         this.rebase(Maps.fixedSize.of("tableName", table));
         this.verify(Maps.fixedSize.of("tableName", table), 1.0d);
         this.verifyHtmlCells("1", "ADAPT");
@@ -203,7 +198,7 @@ public class RebaseAndVerifyTest
     public void withExcludeSvnHeadersInExpectedResults() throws Exception
     {
         this.baselineHeaders = null;
-        VerifiableTable table = TableTestUtils.createTable(2, "Key", "Val", "1", "A");
+        VerifiableTable table = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2, "Key", "Val", "1", "A"));
         this.rebase(Maps.fixedSize.of("tableName", table));
         try (BufferedReader reader = new BufferedReader(new FileReader(this.expectedFile)))
         {
@@ -217,7 +212,7 @@ public class RebaseAndVerifyTest
     @Test
     public void svnHeadersAreIgnoredByReader() throws Exception
     {
-        VerifiableTable table = TableTestUtils.createTable(2, "Key", "Val", "1", "A");
+        VerifiableTable table = new DefaultVerifiableTableAdapter(TableTestUtils.createTable("name", 2, "Key", "Val", "1", "A"));
         this.rebase(Maps.fixedSize.of("tableName", table));
         this.baselineHeaders = null;
         this.verify(Maps.fixedSize.of("tableName", table), 1.0d);
@@ -239,14 +234,7 @@ public class RebaseAndVerifyTest
 
     private void finishRebase(final TableVerifier rebaseWatcher)
     {
-        TableTestUtils.assertAssertionError(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                rebaseWatcher.succeeded(description.get());
-            }
-        });
+        TableTestUtils.assertAssertionError(() -> rebaseWatcher.succeeded(description.get()));
         this.expectedFile = rebaseWatcher.getExpectedFile();
     }
 
@@ -291,14 +279,7 @@ public class RebaseAndVerifyTest
 
     private static VerifiableTable createTypedTable(Object... values)
     {
-        MutableList<Object> headers = ArrayIterate.collect(values, new Function<Object, Object>()
-        {
-            @Override
-            public Object valueOf(Object object)
-            {
-                return object.getClass().getSimpleName();
-            }
-        });
-        return new ListVerifiableTable(headers, Arrays.asList(Arrays.<Object>asList(values)));
+        MutableList<Object> headers = ArrayIterate.collect(values, object -> object.getClass().getSimpleName());
+        return new ListVerifiableTable("Test", headers, Arrays.asList(Arrays.<Object>asList(values)));
     }
 }

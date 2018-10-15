@@ -75,11 +75,17 @@ public class TableVerifierPerformanceTest
         VerifiableTable expectedTable = new ExpectedTable();
         Map<String, VerifiableTable> expectedTables = Maps.fixedSize.of("table", expectedTable);
         Map<String, VerifiableTable> actualTables = Maps.fixedSize.of("table", actualData);
-        this.tableVerifier.verify(expectedTables, actualTables);;
+        this.tableVerifier.verify(expectedTables, actualTables);
     }
 
     private static class ExpectedTable implements VerifiableTable
     {
+        @Override
+        public String getTableName()
+        {
+            return "Test";
+        }
+
         @Override
         public int getRowCount()
         {

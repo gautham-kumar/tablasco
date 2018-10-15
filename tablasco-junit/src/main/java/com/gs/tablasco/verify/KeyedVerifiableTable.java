@@ -17,11 +17,8 @@
 package com.gs.tablasco.verify;
 
 import com.gs.tablasco.VerifiableTable;
+import com.gs.tablasco.compare.KeyedComparableTable;
 
-/**
- * <tt>VerifiableTable</tt>
- */
-public interface KeyedVerifiableTable extends VerifiableTable
+public interface KeyedVerifiableTable extends KeyedComparableTable, VerifiableTable
 {
-    boolean isKeyColumn(int columnIndex);
 }

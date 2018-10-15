@@ -17,22 +17,21 @@
 package com.gs.tablasco.rebase;
 
 import com.gs.tablasco.VerifiableTable;
-import com.gs.tablasco.verify.CellComparator;
-import com.gs.tablasco.verify.ColumnComparators;
-import com.gs.tablasco.verify.Metadata;
+import com.gs.tablasco.compare.CellComparator;
+import com.gs.tablasco.compare.ColumnComparators;
+import com.gs.tablasco.compare.Metadata;
+import org.eclipse.collections.impl.block.factory.Functions;
+import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.eclipse.collections.impl.utility.ArrayIterate;
+import org.eclipse.collections.impl.utility.Iterate;
 import org.eclipse.collections.impl.utility.StringIterate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.*;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -60,6 +59,11 @@ public final class RebaseFileWriter
         this.baselineHeaders = baselineHeaders;
         this.columnComparators = columnComparators;
         this.outputFile = outputFile;
+    }
+
+    public void writeRebasedResults(String methodName, List<VerifiableTable> actualResults)
+    {
+        this.writeRebasedResults(methodName, Iterate.toMap(Iterate.reject(actualResults, Predicates.isNull()), VerifiableTable::getTableName, Functions.getPassThru()));
     }
 
     public void writeRebasedResults(String methodName, Map<String, VerifiableTable> actualResults)

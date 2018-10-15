@@ -17,47 +17,19 @@
 package com.gs.tablasco.verify;
 
 import com.gs.tablasco.VerifiableTable;
-import org.eclipse.collections.impl.utility.Iterate;
+import com.gs.tablasco.compare.ListComparableTable;
 
 import java.util.List;
 
-public class ListVerifiableTable implements VerifiableTable
+public class ListVerifiableTable extends ListComparableTable implements VerifiableTable
 {
-    private final List<?> headers;
-    private final List<List<Object>> data;
-
-    public ListVerifiableTable(List<List<Object>> headersAndData)
+    public ListVerifiableTable(String tableName, List<List<Object>> headersAndData)
     {
-        this(Iterate.getFirst(headersAndData), headersAndData.subList(1, headersAndData.size()));
+        super(tableName, headersAndData);
     }
 
-    public ListVerifiableTable(List<?> headers, List<List<Object>> data)
+    public ListVerifiableTable(String tableName, List<?> headers, List<List<Object>> data)
     {
-        this.headers = headers;
-        this.data = data;
-    }
-
-    @Override
-    public int getRowCount()
-    {
-        return this.data.size();
-    }
-
-    @Override
-    public int getColumnCount()
-    {
-        return this.headers.size();
-    }
-
-    @Override
-    public String getColumnName(int columnIndex)
-    {
-        return String.valueOf(this.headers.get(columnIndex));
-    }
-
-    @Override
-    public Object getValueAt(int rowIndex, int columnIndex)
-    {
-        return this.data.get(rowIndex).get(columnIndex);
+        super(tableName, headers, data);
     }
 }

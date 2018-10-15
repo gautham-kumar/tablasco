@@ -20,32 +20,7 @@ package com.gs.tablasco;
  * The table model that <tt>TableVerifier</tt> is able to verify. Data structures must be adapted to instances of
  * <tt>VerifiableTable</tt> in order to be verified.
  */
-public interface VerifiableTable
+public interface VerifiableTable extends ComparableTable
 {
-    /**
-     * Returns the number of data rows in this table. This does not include column headers.
-     * @return the row count
-     */
-    int getRowCount();
 
-    /**
-     * Returns the number of columns in this table.
-     * @return the column count
-     */
-    int getColumnCount();
-
-    /**
-     * Returns the column name at a given index.
-     * @param columnIndex zero-based column index
-     * @return the column name at given index
-     */
-    String getColumnName(int columnIndex);
-
-    /**
-     * Returns the value at a given row and column index
-     * @param rowIndex zero-based row index
-     * @param columnIndex zero-based column index
-     * @return the value at given row and column index
-     */
-    Object getValueAt(int rowIndex, int columnIndex);
 }

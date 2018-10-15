@@ -17,7 +17,10 @@
 package com.gs.tablasco.verify.indexmap;
 
 import com.gs.tablasco.VerifiableTable;
-import com.gs.tablasco.verify.ColumnComparators;
+import com.gs.tablasco.compare.ColumnComparators;
+import com.gs.tablasco.compare.indexmap.BestMatchPartialMatcher;
+import com.gs.tablasco.compare.indexmap.IndexMap;
+import com.gs.tablasco.compare.indexmap.UnmatchedIndexMap;
 import com.gs.tablasco.verify.ListVerifiableTable;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.list.mutable.FastList;
@@ -25,23 +28,25 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-
 public class PartialMatcherTest
 {
     private static final VerifiableTable MISSING = new ListVerifiableTable(
+            "Test",
             FastList.<Object>newListWith("Entity", "Null-1", "Null-2", "Account", "Net", "MV", "Quantity"),
-            FastList.<List<Object>>newListWith(
-                    FastList.<Object>newListWith("GSIL", null, "", "71000", 100.0, 1000.0, 10.0),
-                    FastList.<Object>newListWith("GSCO", null, "", "91001", 500.0, 5000.0, 50.0),
-                    FastList.<Object>newListWith("GSCO", null, "", "91001", 500.0, 5000.0, 58.0)));
+            FastList.newListWith(
+                    FastList.newListWith("GSIL", null, "", "71000", 100.0, 1000.0, 10.0),
+                    FastList.newListWith("GSCO", null, "", "91001", 500.0, 5000.0, 50.0),
+                    FastList.newListWith("GSCO", null, "", "91001", 500.0, 5000.0, 58.0)));
+
     private static final VerifiableTable SURPLUS = new ListVerifiableTable(
+            "Test",
             FastList.<Object>newListWith("Entity", "String", "Account", "Net", "MV", "Quantity"),
-            FastList.<List<Object>>newListWith(
-                    FastList.<Object>newListWith("GSIL", "", null, "71000", 100.0, 9000.0, 90.0),
-                    FastList.<Object>newListWith("GSIL", "", null, "71000", 100.0, 9000.0, 10.0),
-                    FastList.<Object>newListWith("GSCO", "", "", "91001", 505.0, 5064.0, 58.0),
-                    FastList.<Object>newListWith("GSCO", "", null, "91001", 500.0, 5064.0, 58.0)));
+            FastList.newListWith(
+                    FastList.newListWith("GSIL", "", null, "71000", 100.0, 9000.0, 90.0),
+                    FastList.newListWith("GSIL", "", null, "71000", 100.0, 9000.0, 10.0),
+                    FastList.newListWith("GSCO", "", "", "91001", 505.0, 5064.0, 58.0),
+                    FastList.newListWith("GSCO", "", null, "91001", 500.0, 5064.0, 58.0)));
+
     private static final MutableList<IndexMap> COLUMNS = FastList.newListWith(
             new IndexMap(0, 0), new IndexMap(1, 1), new IndexMap(2, 2), new IndexMap(3, 3), new IndexMap(4, 4), new IndexMap(5, 5), new IndexMap(6, 6));
 
